@@ -1,4 +1,28 @@
 package com.example.booklibrary.model;
 
-public class BookCatalogs {
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Entity
+@Table(name = "BookCatalogs")
+public class BookCatalog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "book_id")
+    private Book book;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "catalog_id")
+    private Catalog catalog;
+
+
 }

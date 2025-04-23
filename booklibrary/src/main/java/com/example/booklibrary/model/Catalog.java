@@ -5,18 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.xml.catalog.Catalog;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Catalogs {
+@Table(name = "Catalogs")
+public class Catalog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne
@@ -24,9 +26,9 @@ public class Catalogs {
     private Catalog parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Catalog> children;
+    private List<Catalog> children = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "catalogs")
-    private List<Book> books;
+    @OneToMany(mappedBy = "catalog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookCatalog> bookCatalogs = new ArrayList<>();
 
 }
