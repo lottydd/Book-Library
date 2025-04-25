@@ -1,5 +1,6 @@
 package com.example.booklibrary.model;
 
+import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,32 +9,26 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "Users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-
+@Entity
+@Table(name = "BookCopies")
+public class BookCopy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "copy_id")
+    private int copyId;
 
     @ManyToOne
-    @JoinColumn(name = "roleId")
-    private List<Role> roles;
+    @JoinColumn(name = "book_id")
+    private Book book;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+    @Column(name = "copy_status")
+    @Enumerated(EnumType.STRING)
+    private CopyStatus status;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "copy_id")
     private List<Rental> rentals = new ArrayList<>();
-
 
 }
