@@ -27,10 +27,16 @@ public class Rental {
     @JoinColumn(name = "copy_id")
     private BookCopy copy;
 
+    @Column(name = "start_date")
     private LocalDateTime startDate;
+
+    @Column(name = "due_date")
     private LocalDateTime dueDate;
+
+    @Column(name = "return_date")
     private LocalDateTime returnDate;
 
+    @Column(name = "rental_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private RentalStatus status;
 

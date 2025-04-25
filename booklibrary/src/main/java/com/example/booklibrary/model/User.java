@@ -21,12 +21,12 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "roleId")
-    private Role role;
+    private List<Role> roles;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
