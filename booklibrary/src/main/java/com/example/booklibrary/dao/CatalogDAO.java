@@ -1,4 +1,9 @@
 package com.example.booklibrary.dao;
 
-public class CatalogDAO {
+import com.example.booklibrary.model.Catalog;
+
+public class CatalogDAO extends BaseDAO<Catalog, Integer>{
+    public CatalogDAO() {
+        super(Catalog.class);
+    }
 }

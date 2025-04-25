@@ -17,6 +17,7 @@ public class BaseDAO<T, ID> implements GenericDAO<T, ID> {
 
     public BaseDAO(Class<T> entityClass) {
         this.entityClass = entityClass;
+
     }
 
     @Transactional(readOnly = true)
