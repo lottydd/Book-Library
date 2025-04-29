@@ -81,12 +81,16 @@ public class CatalogService {
         Catalog catalog = catalogDAO.findById(catalogId)
                 .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
 
+        // Проверяем, не существует ли уже такая связь
+        if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {
+            throw new IllegalStateException("Book is already in the catalog");
+        }
+
         BookCatalog bookCatalog = new BookCatalog();
         bookCatalog.setBook(book);
         bookCatalog.setCatalog(catalog);
         bookCatalogDAO.save(bookCatalog);
     }
-
 
 }
 
