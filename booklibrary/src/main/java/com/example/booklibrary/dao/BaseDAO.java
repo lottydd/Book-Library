@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class BaseDAO<T, ID> implements GenericDAO<T, ID> {
@@ -22,8 +23,9 @@ public class BaseDAO<T, ID> implements GenericDAO<T, ID> {
 
     @Transactional(readOnly = true)
     @Override
-    public T findById(ID id) {
-        return entityManager.find(entityClass, id);
+    public Optional<T> findById(ID id) {
+        T entity = entityManager.find(entityClass, id);
+        return Optional.ofNullable(entity);
     }
 
     @Transactional(readOnly = true)
