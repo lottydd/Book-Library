@@ -53,8 +53,6 @@ public class UserService {
         });
     }
 
-
-
     public void registerUser(UserCreateDTO userCreateDTO) {
         validateRegistrationData(userCreateDTO);
         User user = userMapper.toEntity(userCreateDTO);
@@ -91,7 +89,7 @@ public class UserService {
         userDAO.delete(userId);
     }
 
-    public User FindUserById(int userId) {
+    public User findUserById(int userId) {
         return userDAO.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }

@@ -12,20 +12,9 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     User toEntity(UserCreateDTO dto);
 
-
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    User toEntity(UserUpdateDTO dto);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "roles", source = "roles")
     void updateFromDto(UserUpdateDTO dto, @MappingTarget User user);

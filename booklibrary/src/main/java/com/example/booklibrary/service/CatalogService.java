@@ -1,8 +1,93 @@
 package com.example.booklibrary.service;
 
+import com.example.booklibrary.dao.BookCatalogDAO;
+import com.example.booklibrary.dao.BookDAO;
+import com.example.booklibrary.dao.CatalogDAO;
+import com.example.booklibrary.model.Book;
+import com.example.booklibrary.model.BookCatalog;
+import com.example.booklibrary.model.Catalog;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
-@Service
+import java.util.ArrayList;
+import java.util.List;
 
+@Service
 public class CatalogService {
+    private CatalogDAO catalogDAO;
+    private BookDAO bookDAO;
+    private BookCatalogDAO bookCatalogDAO;
+
+    public CatalogService(CatalogDAO catalogDAO, BookCatalogDAO bookCatalogDAO) {
+        this.catalogDAO = catalogDAO;
+        this.bookCatalogDAO = bookCatalogDAO;
+    }
+
+    public void createCatalog(String name, Integer parentId) {
+        Catalog catalog = new Catalog();
+        catalog.setName(name);
+        if (parentId != null) {
+            Catalog parent = catalogDAO.findById(parentId)
+                    .orElseThrow(() -> new EntityNotFoundException("Parent catalog not found"));
+            catalog.setParent(parent);
+            parent.getChildren().add(catalog);
+            catalogDAO.update(parent);
+        }
+        catalogDAO.save(catalog);
+
+    }
+
+    public void deleteCatalog(int catalogId) {
+        Catalog catalog = catalogDAO.findById(catalogId)
+                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
+        deleteCatalogRecursive(catalog);
+    }
+
+    private void deleteCatalogRecursive(Catalog catalog) {
+        if (!catalog.getBookCatalogs().isEmpty()) {
+            bookCatalogDAO.deleteAll(catalog.getBookCatalogs());
+        }
+        if (!catalog.getChildren().isEmpty()) {
+            List<Catalog> children = new ArrayList<>(catalog.getChildren());
+            for (Catalog child : children) {
+                deleteCatalogRecursive(child);
+            }
+            Catalog parent = catalog.getParent();
+            if (parent != null) {
+                parent.getChildren().remove(catalog);
+                catalogDAO.update(parent);
+            }
+            catalogDAO.delete(catalog.getId());
+        }
+    }
+
+    private List<Catalog> fetchChildrenRecursively(List<Catalog> catalogs) {
+        catalogs.forEach(catalog -> {
+            List<Catalog> children = catalogDAO.findByParentId(catalog.getId());
+            catalog.setChildren(fetchChildrenRecursively(children));
+        });
+        return catalogs;
+    }
+
+
+    public List<Catalog> getCatalogTree() {
+        List<Catalog> rootCatalogs = catalogDAO.findRootCatalogs();
+        return fetchChildrenRecursively(rootCatalogs);
+    }
+
+    public void addBookToCatalog(int bookId, int catalogId) {
+        Book book = bookDAO.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Catalog catalog = catalogDAO.findById(catalogId)
+                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
+
+        BookCatalog bookCatalog = new BookCatalog();
+        bookCatalog.setBook(book);
+        bookCatalog.setCatalog(catalog);
+        bookCatalogDAO.save(bookCatalog);
+    }
+
+
 }
+
+
