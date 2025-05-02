@@ -3,7 +3,7 @@ package com.example.booklibrary.mapper;
 
 import com.example.booklibrary.dto.request.book.BookAddDTO;
 import com.example.booklibrary.dto.request.book.BookDetailsDTO;
-import com.example.booklibrary.dto.request.book.BookResponseDTO;
+import com.example.booklibrary.dto.response.book.BookResponseDTO;
 import com.example.booklibrary.dto.request.book.BookUpdateDTO;
 import com.example.booklibrary.model.Book;
 import org.mapstruct.Mapper;

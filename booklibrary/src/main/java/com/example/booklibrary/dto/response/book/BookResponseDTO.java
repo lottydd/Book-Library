@@ -1,4 +1,4 @@
-package com.example.booklibrary.dto.request.book;
+package com.example.booklibrary.dto.response.book;
 
 import lombok.Data;
 

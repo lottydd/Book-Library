@@ -1,10 +1,10 @@
 package com.example.booklibrary.service;
 
-import com.example.booklibrary.dao.BookCatalogDAO;
 import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.BookDAO;
-import com.example.booklibrary.dao.RentalDAO;
 import com.example.booklibrary.dto.request.book.*;
+import com.example.booklibrary.dto.request.bookcopy.BookCopyDTO;
+import com.example.booklibrary.dto.response.book.BookResponseDTO;
 import com.example.booklibrary.mapper.BookMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCopy;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 

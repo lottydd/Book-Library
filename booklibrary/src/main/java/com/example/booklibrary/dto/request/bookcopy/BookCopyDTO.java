@@ -1,4 +1,4 @@
-package com.example.booklibrary.dto.request.book;
+package com.example.booklibrary.dto.request.bookcopy;
 
 import lombok.Builder;
 import lombok.Data;

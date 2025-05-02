@@ -1,6 +1,7 @@
 package com.example.booklibrary.dto.request.book;
 
 
+import com.example.booklibrary.dto.response.book.BookResponseDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
