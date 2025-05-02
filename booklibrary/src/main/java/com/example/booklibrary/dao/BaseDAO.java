@@ -9,23 +9,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class BaseDAO<T, ID> implements GenericDAO<T, ID> {
+public abstract class BaseDAO<T, ID> implements GenericDAO<T, ID> {
 
     private final Class<T> entityClass;
 
     @PersistenceContext
     protected EntityManager entityManager;
 
-    public BaseDAO(Class<T> entityClass) {
+    protected BaseDAO(Class<T> entityClass) {
         this.entityClass = entityClass;
-
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<T> findById(ID id) {
-        T entity = entityManager.find(entityClass, id);
-        return Optional.ofNullable(entity);
+        return Optional.ofNullable(entityManager.find(entityClass, id));
     }
 
     @Transactional(readOnly = true)
@@ -36,19 +34,21 @@ public class BaseDAO<T, ID> implements GenericDAO<T, ID> {
     }
 
     @Transactional
-    public void save(T entity) {
+    @Override
+    public T save(T entity) {
         entityManager.persist(entity);
+        return entity;
     }
 
     @Transactional
     @Override
-    public void update(T entity) {
-        entityManager.merge(entity);
+    public T update(T entity) {
+        return entityManager.merge(entity);
     }
 
     @Transactional
     @Override
-    public void delete(int id) {
+    public void delete(ID id) {
         T entity = entityManager.find(entityClass, id);
         if (entity != null) {
             entityManager.remove(entity);

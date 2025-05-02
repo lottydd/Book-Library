@@ -27,4 +27,6 @@ public class CatalogDAO extends BaseDAO<Catalog, Integer>{
                 .setParameter("parentId", parentId)
                 .getResultList();
     }
+
+
 }

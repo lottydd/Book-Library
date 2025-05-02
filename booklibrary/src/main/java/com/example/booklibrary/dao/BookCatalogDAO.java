@@ -13,12 +13,20 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
     public BookCatalogDAO() {
         super(BookCatalog.class);    }
 
-
-    public void deleteAll(List<BookCatalog> bookCatalogs) {
-        bookCatalogs.forEach(bc -> entityManager.remove(bc));
+    public List<BookCatalog> findByBookId(int bookId) {
+        return entityManager.createQuery(
+                        "SELECT bc FROM BookCatalog bc WHERE bc.book.id = :bookId",
+                        BookCatalog.class)
+                .setParameter("bookId", bookId)
+                .getResultList();
     }
 
-    // Проверить, существует ли связь
+    public void deleteAll(List<BookCatalog> bookCatalogs) {
+        entityManager.createQuery(
+                        "DELETE FROM BookCatalog bc WHERE bc IN :bookCatalogs")
+                .setParameter("bookCatalogs", bookCatalogs)
+                .executeUpdate();
+    }
     public boolean existsByBookAndCatalog(Book book, Catalog catalog) {
         Long count = entityManager.createQuery(
                         "SELECT COUNT(bc) FROM BookCatalog bc " +

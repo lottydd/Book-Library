@@ -1,5 +1,7 @@
 package com.example.booklibrary.dao;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -8,9 +10,9 @@ public interface GenericDAO<T, ID> {
 
     List<T> findAll();
 
-    void save(T entity);
+    T save(T entity);
 
-    void update(T entity);
+    T update(T entity);
 
-    void delete(int id);
+    void delete(ID id);
 }

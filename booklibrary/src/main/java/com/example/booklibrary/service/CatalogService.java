@@ -18,10 +18,29 @@ public class CatalogService {
     private BookDAO bookDAO;
     private BookCatalogDAO bookCatalogDAO;
 
-    public CatalogService(CatalogDAO catalogDAO, BookCatalogDAO bookCatalogDAO) {
+    public CatalogService(CatalogDAO catalogDAO, BookDAO bookDAO, BookCatalogDAO bookCatalogDAO) {
         this.catalogDAO = catalogDAO;
+        this.bookDAO = bookDAO;
         this.bookCatalogDAO = bookCatalogDAO;
     }
+
+    public void addBookToCatalogs(int bookId, List<Integer> catalogIds) {
+        catalogIds.forEach(catalogId -> addBookToCatalog(bookId, catalogId));
+    }
+
+    public void updateCatalogs(int bookId, List<Integer> catalogIds) {
+        removeBookFromAllCatalogs(bookId);
+        addBookToCatalogs(bookId, catalogIds);
+    }
+
+    public void removeBookFromAllCatalogs(int bookId) {
+        Book book = bookDAO.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+
+        List<BookCatalog> bookCatalogs = bookCatalogDAO.findByBookId(bookId);
+        bookCatalogDAO.deleteAll(bookCatalogs);
+    }
+
 
     public void createCatalog(String name, Integer parentId) {
         Catalog catalog = new Catalog();
@@ -81,7 +100,6 @@ public class CatalogService {
         Catalog catalog = catalogDAO.findById(catalogId)
                 .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
 
-        // Проверяем, не существует ли уже такая связь
         if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {
             throw new IllegalStateException("Book is already in the catalog");
         }

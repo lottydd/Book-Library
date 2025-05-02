@@ -1,9 +1,7 @@
 package com.example.booklibrary.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,9 +33,14 @@ public class Book {
 
     private LocalDateTime storageArrivalDate;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookCopy> copies;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<BookCopy> copies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch =  FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<BookCatalog> bookCatalogs = new ArrayList<>();
 }
