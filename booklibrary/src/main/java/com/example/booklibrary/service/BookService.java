@@ -5,6 +5,7 @@ import com.example.booklibrary.dao.BookDAO;
 import com.example.booklibrary.dto.request.book.*;
 import com.example.booklibrary.dto.request.bookcopy.BookCopyDTO;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
+import com.example.booklibrary.mapper.BookCopyMapper;
 import com.example.booklibrary.mapper.BookMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCopy;
@@ -27,11 +28,16 @@ public class BookService {
     private final BookCopyDAO bookCopyDAO;
     private final CatalogService catalogService;
     private final BookMapper bookMapper;
+    private final BookCopyMapper bookCopyMapper;
+    private final BookCopyService bookCopyService;
 
-    public BookService(BookCopyDAO bookCopyDAO, CatalogService catalogService,  BookMapper bookMapper) {
+
+    public BookService(BookCopyDAO bookCopyDAO, CatalogService catalogService, BookMapper bookMapper, BookCopyMapper bookCopyMapper, BookCopyService bookCopyService) {
         this.bookCopyDAO = bookCopyDAO;
         this.catalogService = catalogService;
         this.bookMapper = bookMapper;
+        this.bookCopyMapper = bookCopyMapper;
+        this.bookCopyService = bookCopyService;
     }
 
     public BookResponseDTO addOrUpdateBook(BookAddDTO dto) {
@@ -55,26 +61,6 @@ public class BookService {
         bookDAO.delete(bookId);
     }
 
-    public List<BookCopyDTO> addCopies(int bookId, int count) {
-        Book book = getBookById(bookId);
-        return IntStream.range(0, count)
-                .mapToObj(i -> createNewCopy(book))
-                .map(copy -> {
-                    bookCopyDAO.save(copy);
-                    return copy;
-                })
-                .map(this::toCopyDTO)
-                .collect(Collectors.toList());
-    }
-
-    public BookCopyDTO updateCopyStatus(int copyId, CopyStatus status) {
-        BookCopy copy = bookCopyDAO.findById(copyId)
-                .orElseThrow(() -> new EntityNotFoundException("Copy not found"));
-        validateStatusChange(copy, status);
-        copy.setStatus(status);
-        return toCopyDTO(bookCopyDAO.save(copy));
-    }
-
     public BookDetailsDTO getBookDetails(int bookId) {
         Book book = getBookById(bookId);
         return bookMapper.toDetailsDTO(book);
@@ -90,13 +76,13 @@ public class BookService {
         Book book = bookMapper.toEntity(dto);
         book.setStorageArrivalDate(LocalDateTime.now());
         Book savedBook = bookDAO.save(book);
-        addCopies(savedBook.getId(), dto.getCopiesCount());
+        bookCopyService.addCopies(savedBook.getId(), dto.getCopiesCount());
         catalogService.addBookToCatalogs(savedBook.getId(), dto.getCatalogIds());
         return bookMapper.toResponseDTO(savedBook);
     }
 
     private BookResponseDTO updateExistingBook(Book book, BookAddDTO dto) {
-        addCopies(book.getId(), dto.getCopiesCount());
+        bookCopyService.addCopies(book.getId(), dto.getCopiesCount());
         catalogService.updateCatalogs(book.getId(), dto.getCatalogIds());
         return bookMapper.toResponseDTO(book);
     }
@@ -105,15 +91,6 @@ public class BookService {
         return BookCopy.builder()
                 .book(book)
                 .status(CopyStatus.AVAILABLE)
-                .build();
-    }
-
-
-    private BookCopyDTO toCopyDTO(BookCopy copy) {
-        return BookCopyDTO.builder()
-                .copyId(copy.getCopyId())
-                .status(copy.getStatus().name())
-                .bookTitle(copy.getBook().getBookTitle())
                 .build();
     }
 

@@ -39,5 +39,14 @@ public class BookDAO extends BaseDAO<Book, Integer> {
                 .getResultList();
     }
 
+    public boolean existsById(int bookId) {
+        return entityManager.createQuery(
+                        "SELECT COUNT(b) > 0 FROM Book b WHERE b.id = :bookId", Boolean.class)
+                .setParameter("bookId", bookId)
+                .getSingleResult();
+    }
+
+
+
 }
 
