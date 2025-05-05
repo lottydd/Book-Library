@@ -9,6 +9,7 @@ import com.example.booklibrary.model.BookCopy;
 import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.IntStream;
 
@@ -27,7 +28,7 @@ public class BookCopyService {
         this.bookDAO = bookDAO;
     }
 
-
+    @Transactional
     public void addCopies(int bookId, int count) {
         Book book = bookDAO.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
@@ -36,19 +37,19 @@ public class BookCopyService {
                 .mapToObj(i -> createNewCopy(book))
                 .forEach(bookCopyDAO::save);
     }
-
+    @Transactional
     public BookCopyDTO updateCopyStatus(int copyId, CopyStatus status) {
         BookCopy copy = getCopyById(copyId);
         validateStatusChange(copy, status);
         copy.setStatus(status);
         return bookCopyMapper.toDto(bookCopyDAO.save(copy));
     }
-
+    @Transactional
     public void deleteAllCopiesForBook(int bookId) {
         bookCopyDAO.findAllByBookId(bookId)
                 .forEach(copy -> bookCopyDAO.delete(copy.getCopyId()));
     }
-
+    @Transactional
     public boolean hasRentedCopies(int bookId) {
         return bookCopyDAO.existsByBookIdAndStatus(bookId, CopyStatus.RENTED);
     }

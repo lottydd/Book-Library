@@ -33,6 +33,7 @@ public class CatalogService {
         addBookToCatalogs(bookId, catalogIds);
     }
 
+
     public void removeBookFromAllCatalogs(int bookId) {
         Book book = bookDAO.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
@@ -111,5 +112,3 @@ public class CatalogService {
     }
 
 }
-
-

@@ -13,6 +13,7 @@ import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,12 +41,14 @@ public class BookService {
         this.bookCopyService = bookCopyService;
     }
 
+    @Transactional
     public BookResponseDTO addOrUpdateBook(BookAddDTO dto) {
         return bookDAO.findByIsbn(dto.getIsbn())
                 .map(book -> updateExistingBook(book, dto))
                 .orElseGet(() -> createNewBook(dto));
     }
 
+    @Transactional
     public BookResponseDTO updateBook(int bookId, BookUpdateDTO dto) {
         Book book = bookDAO.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
@@ -53,6 +56,7 @@ public class BookService {
         return bookMapper.toResponseDTO(bookDAO.save(book));
     }
 
+    @Transactional
     public void deleteBook(int bookId) {
         Book book = bookDAO.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
@@ -66,12 +70,14 @@ public class BookService {
         return bookMapper.toDetailsDTO(book);
     }
 
+    @Transactional(readOnly = true)
     public List<BookResponseDTO> searchBooks(String query) {
         return bookDAO.search(query).stream()
                 .map(bookMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     private BookResponseDTO createNewBook(BookAddDTO dto) {
         Book book = bookMapper.toEntity(dto);
         book.setStorageArrivalDate(LocalDateTime.now());
@@ -94,6 +100,7 @@ public class BookService {
                 .build();
     }
 
+    @Transactional
     private void deleteDependencies(Book book) {
         catalogService.removeBookFromAllCatalogs(book.getId());
 
@@ -101,6 +108,7 @@ public class BookService {
                 bookCopyDAO.delete(copy.getCopyId()));
     }
 
+    @Transactional(readOnly = true)
     private Book getBookById(int bookId) {
         return bookDAO.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));

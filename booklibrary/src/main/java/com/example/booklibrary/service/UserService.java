@@ -9,14 +9,15 @@ import com.example.booklibrary.model.Role;
 import com.example.booklibrary.model.User;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 
 public class UserService {
 
-    private UserDAO userDAO;
-    private RoleDAO roleDAO;
-    private UserMapper userMapper;
+    private final UserDAO userDAO;
+    private final RoleDAO roleDAO;
+    private final UserMapper userMapper;
 
     public UserService(UserDAO userDAO, RoleDAO roleDAO, UserMapper userMapper) {
         this.userDAO = userDAO;
@@ -29,7 +30,6 @@ public class UserService {
         if (dto == null) {
             throw new IllegalArgumentException("Registration data cannot be null");
         }
-
         userDAO.findByEmail(dto.getEmail()).ifPresent(u -> {
             throw new IllegalArgumentException("Email " + dto.getEmail() + " is already registered");
         });
@@ -52,7 +52,7 @@ public class UserService {
             throw new IllegalArgumentException("Username " + dto.getUsername() + " is already taken");
         });
     }
-
+    @Transactional
     public void registerUser(UserCreateDTO userCreateDTO) {
         validateRegistrationData(userCreateDTO);
         User user = userMapper.toEntity(userCreateDTO);
@@ -60,6 +60,7 @@ public class UserService {
         assignRoleToUser(user.getId(), "USER");
 
     }
+    @Transactional
 
     public void assignRoleToUser(int userId,String roleName) {
         User user = userDAO.findById(userId)
@@ -69,6 +70,7 @@ public class UserService {
         user.getRoles().add(role);
         userDAO.update(user);
     }
+    @Transactional
 
     public void updateUser(int userId, UserUpdateDTO userUpdateDTO) {
         validateUpdateData(userUpdateDTO);
@@ -77,6 +79,7 @@ public class UserService {
         userMapper.updateFromDto(userUpdateDTO, user);
         userDAO.update(user);
     }
+    @Transactional
 
     public void deleteUser(int userId) {
         User user = userDAO.findById(userId)
@@ -88,7 +91,7 @@ public class UserService {
 
         userDAO.delete(userId);
     }
-
+    @Transactional(readOnly = true)
     public User findUserById(int userId) {
         return userDAO.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));

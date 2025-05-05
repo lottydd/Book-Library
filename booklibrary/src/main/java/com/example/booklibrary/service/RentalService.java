@@ -11,8 +11,8 @@ import com.example.booklibrary.model.User;
 import com.example.booklibrary.util.CopyStatus;
 import com.example.booklibrary.util.RentalStatus;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,7 +34,7 @@ public class RentalService {
         this.rentalMapper = rentalMapper;
     }
 
-
+    @Transactional
     public RentalDTO rentCopy(int userId, int copyId, LocalDateTime dueDate) {
         User user = userDAO.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -59,7 +59,7 @@ public class RentalService {
         return rentalMapper.toDto(rentalDAO.save(rental));
     }
 
-
+    @Transactional
     public RentalDTO returnCopy(int copyId) {
         BookCopy copy = bookCopyDAO.findById(copyId)
                 .orElseThrow(() -> new EntityNotFoundException("Book copy not found"));
@@ -76,17 +76,22 @@ public class RentalService {
         return rentalMapper.toDto(rentalDAO.update(activeRental));
     }
 
+    @Transactional(readOnly = true)
     public List<RentalDTO> findOverdueRentals() {
         return rentalDAO.findOverdueRentals(LocalDateTime.now()).stream()
-                .map(rental -> {
-                    if (rental.getStatus() == RentalStatus.RENTED) {
-                        rental.setStatus(RentalStatus.LATE);
-                        rentalDAO.update(rental);
-                    }
-                    return rentalMapper.toDto(rental);
-                })
+                .map(rentalMapper::toDto)
                 .toList();
     }
+
+    @Transactional
+    public void markOverdueRentalsAsLate() {
+        rentalDAO.findOverdueRentals(LocalDateTime.now()).forEach(rental -> {
+            rental.setStatus(RentalStatus.LATE);
+            rentalDAO.update(rental);
+        });
+    }
+
+    @Transactional(readOnly = true)
 
     public List<RentalDTO> getUserRentalHistory(int userId) {
         return rentalDAO.findByUserId(userId).stream()
@@ -94,12 +99,11 @@ public class RentalService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+
     public List<RentalDTO> getCopyRentalHistory(int copyId) {
         return rentalDAO.findByCopyId(copyId).stream()
                 .map(rentalMapper::toDto)
                 .toList();
     }
-
-
-
 }
