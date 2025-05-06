@@ -3,6 +3,7 @@ package com.example.booklibrary.model;
 import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class BookCopy {
     @Column(name = "copy_id")
     private int copyId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -30,6 +31,7 @@ public class BookCopy {
     private CopyStatus status;
 
     @OneToMany(mappedBy = "copy", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 10)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Rental> rentals = new ArrayList<>();

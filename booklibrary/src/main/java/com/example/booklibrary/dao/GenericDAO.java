@@ -15,4 +15,6 @@ public interface GenericDAO<T, ID> {
     T update(T entity);
 
     void delete(ID id);
+
+    void saveAll(List<T> entities);
 }

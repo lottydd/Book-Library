@@ -11,6 +11,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
@@ -33,9 +35,14 @@ public class BookCopyService {
         Book book = bookDAO.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
 
-        IntStream.range(0, count)
-                .mapToObj(i -> createNewCopy(book))
-                .forEach(bookCopyDAO::save);
+        List<BookCopy> copies = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            copies.add(BookCopy.builder()
+                    .book(book)
+                    .status(CopyStatus.AVAILABLE)
+                    .build());
+        }
+        bookCopyDAO.saveAll(copies);
     }
     @Transactional
     public BookCopyDTO updateCopyStatus(int copyId, CopyStatus status) {
@@ -44,10 +51,10 @@ public class BookCopyService {
         copy.setStatus(status);
         return bookCopyMapper.toDto(bookCopyDAO.save(copy));
     }
+    
     @Transactional
     public void deleteAllCopiesForBook(int bookId) {
-        bookCopyDAO.findAllByBookId(bookId)
-                .forEach(copy -> bookCopyDAO.delete(copy.getCopyId()));
+        bookCopyDAO.deleteByBookId(bookId); // NEW: Оптимизированный массовый delete
     }
     @Transactional
     public boolean hasRentedCopies(int bookId) {

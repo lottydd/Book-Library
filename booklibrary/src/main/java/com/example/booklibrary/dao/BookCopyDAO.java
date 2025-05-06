@@ -13,6 +13,9 @@ public class BookCopyDAO extends BaseDAO< BookCopy, Integer> {
         super(BookCopy.class);
     }
 
+
+
+
     public List<BookCopy> findAllByBookId(int bookId) {
         return entityManager.createQuery(
                         "SELECT c FROM BookCopy c WHERE c.book.id = :bookId", BookCopy.class)
@@ -43,4 +46,9 @@ public class BookCopyDAO extends BaseDAO< BookCopy, Integer> {
                 .getResultList();
     }
 
+    public void deleteByBookId(int bookId) {
+        entityManager.createQuery("DELETE FROM BookCopy c WHERE c.book.id = :bookId")
+                .setParameter("bookId", bookId)
+                .executeUpdate();
+    }
 }

@@ -54,4 +54,7 @@ public abstract class BaseDAO<T, ID> implements GenericDAO<T, ID> {
             entityManager.remove(entity);
         }
     }
+
+
+
 }

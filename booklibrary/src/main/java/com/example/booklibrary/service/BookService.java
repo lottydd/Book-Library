@@ -75,7 +75,7 @@ public class BookService {
 
     @Transactional(readOnly = true)
     public BookDetailsDTO getBookDetails(int bookId) {
-        Book book = bookDAO.findByIdWithCopies(bookId) // Используем новый метод
+        Book book = bookDAO.findByIdWithCopies(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
         return bookMapper.toDetailsDTO(book);
     }
