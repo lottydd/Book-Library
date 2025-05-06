@@ -15,24 +15,33 @@ public class UserDAO extends BaseDAO<User, Integer> {
 
     public Optional<User> findByEmail(String email) {
         try {
-            User user = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+            return Optional.of(entityManager.createQuery(
+                            "SELECT u FROM User u WHERE u.email = :email", User.class)
                     .setParameter("email", email)
-                    .getSingleResult();
-            return Optional.of(user);
+                    .getSingleResult());
         } catch (NoResultException e) {
             return Optional.empty();
         }
-
     }
 
-    public Optional<User> findByUserName(String username) {
+    public Optional<User> findByUsername(String username) {
         try {
-            User user = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+            return Optional.of(entityManager.createQuery(
+                            "SELECT u FROM User u WHERE u.username = :username", User.class)
                     .setParameter("username", username)
-                    .getSingleResult();
-            return Optional.of(user);
+                    .getSingleResult());
         } catch (NoResultException e) {
             return Optional.empty();
         }
+    }
+
+    public boolean existsByEmailOrUsername(String email, String username) {
+        Long count = entityManager.createQuery(
+                        "SELECT COUNT(u) FROM User u WHERE u.email = :email OR u.username = :username",
+                        Long.class)
+                .setParameter("email", email)
+                .setParameter("username", username)
+                .getSingleResult();
+        return count > 0;
     }
 }

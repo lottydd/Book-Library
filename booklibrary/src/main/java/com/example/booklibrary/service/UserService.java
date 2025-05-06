@@ -25,62 +25,66 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-
+    @Transactional(readOnly = true)
     private void validateRegistrationData(UserCreateDTO dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("Registration data cannot be null");
-        }
-        userDAO.findByEmail(dto.getEmail()).ifPresent(u -> {
-            throw new IllegalArgumentException("Email " + dto.getEmail() + " is already registered");
-        });
+        if (dto == null) throw new IllegalArgumentException("Registration data cannot be null");
 
-        userDAO.findByUserName(dto.getUsername()).ifPresent(u -> {
-            throw new IllegalArgumentException("Username " + dto.getUsername() + " is already taken");
-        });
+        if (userDAO.existsByEmailOrUsername(dto.getEmail(), dto.getUsername())) {
+            throw new IllegalArgumentException("Email or username already taken");
+        }
     }
 
-    private void validateUpdateData(UserUpdateDTO dto) {
+    @Transactional(readOnly = true)
+    private void validateUpdateData(UserUpdateDTO dto, Integer currentUserId) {
         if (dto == null) {
             throw new IllegalArgumentException("Update data cannot be null");
         }
 
-        userDAO.findByEmail(dto.getEmail()).ifPresent(u -> {
-            throw new IllegalArgumentException("Email " + dto.getEmail() + " is already taken");
-        });
+        userDAO.findByEmail(dto.getEmail())
+                .filter(user -> !user.getId().equals(currentUserId))
+                .ifPresent(user -> {
+                    throw new IllegalArgumentException("Email " + dto.getEmail() + " is already taken by another user");
+                });
 
-        userDAO.findByUserName(dto.getUsername()).ifPresent(u -> {
-            throw new IllegalArgumentException("Username " + dto.getUsername() + " is already taken");
-        });
+        userDAO.findByUsername(dto.getUsername())
+                .filter(user -> !user.getId().equals(currentUserId))
+                .ifPresent(user -> {
+                    throw new IllegalArgumentException("Username " + dto.getUsername() + " is already taken by another user");
+                });
     }
+
+
     @Transactional
     public void registerUser(UserCreateDTO userCreateDTO) {
         validateRegistrationData(userCreateDTO);
         User user = userMapper.toEntity(userCreateDTO);
         userDAO.save(user);
         assignRoleToUser(user.getId(), "USER");
-
     }
-    @Transactional
 
-    public void assignRoleToUser(int userId,String roleName) {
+
+    @Transactional
+    public void assignRoleToUser(int userId, String roleName) {
         User user = userDAO.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Role role = roleDAO.findRoleName(roleName)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found"));
         user.getRoles().add(role);
-        userDAO.update(user);
+//        userDAO.update(user);
     }
-    @Transactional
 
+
+    @Transactional
     public void updateUser(int userId, UserUpdateDTO userUpdateDTO) {
-        validateUpdateData(userUpdateDTO);
+        validateUpdateData(userUpdateDTO, userId);
+
         User user = userDAO.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        userMapper.updateFromDto(userUpdateDTO, user);
-        userDAO.update(user);
-    }
-    @Transactional
 
+        userMapper.updateFromDto(userUpdateDTO, user);
+    }
+
+    @Transactional
     public void deleteUser(int userId) {
         User user = userDAO.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -91,12 +95,11 @@ public class UserService {
 
         userDAO.delete(userId);
     }
+
     @Transactional(readOnly = true)
     public User findUserById(int userId) {
         return userDAO.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
-
-
 
 }
