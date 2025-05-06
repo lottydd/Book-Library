@@ -43,9 +43,17 @@ public class BookService {
 
     @Transactional
     public BookResponseDTO addOrUpdateBook(BookAddDTO dto) {
-        return bookDAO.findByIsbn(dto.getIsbn())
-                .map(book -> updateExistingBook(book, dto))
-                .orElseGet(() -> createNewBook(dto));
+        Book book = bookDAO.findByIsbn(dto.getIsbn())
+                .orElseGet(() -> {
+                    Book newBook = bookMapper.toEntity(dto);
+                    newBook.setStorageArrivalDate(LocalDateTime.now());
+                    return bookDAO.save(newBook);
+                });
+
+        bookCopyService.addCopies(book.getId(), dto.getCopiesCount());
+        catalogService.updateCatalogs(book.getId(), dto.getCatalogIds());
+
+        return bookMapper.toResponseDTO(book);
     }
 
     @Transactional
@@ -65,16 +73,11 @@ public class BookService {
         bookDAO.delete(bookId);
     }
 
-    public BookDetailsDTO getBookDetails(int bookId) {
-        Book book = getBookById(bookId);
-        return bookMapper.toDetailsDTO(book);
-    }
-
     @Transactional(readOnly = true)
-    public List<BookResponseDTO> searchBooks(String query) {
-        return bookDAO.search(query).stream()
-                .map(bookMapper::toResponseDTO)
-                .collect(Collectors.toList());
+    public BookDetailsDTO getBookDetails(int bookId) {
+        Book book = bookDAO.findByIdWithCopies(bookId) // Используем новый метод
+                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        return bookMapper.toDetailsDTO(book);
     }
 
     @Transactional

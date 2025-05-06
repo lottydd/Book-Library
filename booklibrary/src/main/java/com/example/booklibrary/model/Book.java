@@ -2,6 +2,7 @@ package com.example.booklibrary.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class Book {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @BatchSize(size = 50)
     private List<BookCopy> copies = new ArrayList<>();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch =  FetchType.LAZY)

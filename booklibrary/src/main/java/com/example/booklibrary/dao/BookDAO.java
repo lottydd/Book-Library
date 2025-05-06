@@ -15,6 +15,18 @@ public class BookDAO extends BaseDAO<Book, Integer> {
     public BookDAO() {
         super(Book.class);
     }
+    public Optional<Book> findByIdWithCopies(int id) {
+        try {
+            return Optional.of(entityManager.createQuery(
+                            "SELECT b FROM Book b LEFT JOIN FETCH b.copies WHERE b.id = :id",
+                            Book.class)
+                    .setParameter("id", id)
+                    .getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
+    }
+
 
     public Optional<Book> findByIsbn(String isbn) {
         try {
@@ -26,17 +38,6 @@ public class BookDAO extends BaseDAO<Book, Integer> {
         } catch (NoResultException e) {
             return Optional.empty();
         }
-    }
-
-    public List<Book> search(String query) {
-        String searchPattern = "%" + query.toLowerCase() + "%";
-        return entityManager.createQuery(
-                        "SELECT b FROM Book b WHERE " +
-                                "LOWER(b.author) LIKE :pattern OR " +
-                                "LOWER(b.bookTitle) LIKE :pattern OR " +
-                                "b.isbn LIKE :pattern", Book.class)
-                .setParameter("pattern", searchPattern)
-                .getResultList();
     }
 
     public boolean existsById(int bookId) {
