@@ -19,9 +19,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "roleId")
-    private List<Role> roles;
+    @ManyToMany(fetch = FetchType.EAGER)  // или LAZY
+    @JoinTable(
+            name = "UserRoles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles = new ArrayList<>();
 
     @Column(nullable = false, unique = true)
     private String username;
