@@ -51,7 +51,7 @@ public class BookCopyService {
         copy.setStatus(status);
         return bookCopyMapper.toDto(bookCopyDAO.save(copy));
     }
-    
+
     @Transactional
     public void deleteAllCopiesForBook(int bookId) {
         bookCopyDAO.deleteByBookId(bookId); // NEW: Оптимизированный массовый delete

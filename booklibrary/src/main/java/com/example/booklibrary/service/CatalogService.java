@@ -8,6 +8,7 @@ import com.example.booklibrary.model.BookCatalog;
 import com.example.booklibrary.model.Catalog;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,15 +25,22 @@ public class CatalogService {
         this.bookCatalogDAO = bookCatalogDAO;
     }
 
+    @Transactional
     public void addBookToCatalogs(int bookId, List<Integer> catalogIds) {
+        if (!bookDAO.existsById(bookId)) {
+            throw new EntityNotFoundException("Book not found");
+        }
         catalogIds.forEach(catalogId -> addBookToCatalog(bookId, catalogId));
     }
+
+    @Transactional
 
     public void updateCatalogs(int bookId, List<Integer> catalogIds) {
         removeBookFromAllCatalogs(bookId);
         addBookToCatalogs(bookId, catalogIds);
     }
 
+    @Transactional
 
     public void removeBookFromAllCatalogs(int bookId) {
         Book book = bookDAO.findById(bookId)
@@ -42,6 +50,7 @@ public class CatalogService {
         bookCatalogDAO.deleteAll(bookCatalogs);
     }
 
+    @Transactional
 
     public void createCatalog(String name, Integer parentId) {
         Catalog catalog = new Catalog();
@@ -55,13 +64,34 @@ public class CatalogService {
         }
         catalogDAO.save(catalog);
 
+
     }
+
+    @Transactional(readOnly = true)
+    public List<Catalog> getCatalogTree() {
+        List<Catalog> rootCatalogs = catalogDAO.findRootCatalogs();
+        return fetchChildrenRecursively(rootCatalogs);
+    }
+
+    @Transactional
+    private List<Catalog> fetchChildrenRecursively(List<Catalog> catalogs) {
+        catalogs.forEach(catalog -> {
+            List<Catalog> children = catalogDAO.findByParentId(catalog.getId());
+            catalog.setChildren(fetchChildrenRecursively(children));
+        });
+        return catalogs;
+    }
+
+
+    @Transactional
 
     public void deleteCatalog(int catalogId) {
         Catalog catalog = catalogDAO.findById(catalogId)
                 .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
         deleteCatalogRecursive(catalog);
     }
+
+    @Transactional
 
     private void deleteCatalogRecursive(Catalog catalog) {
         if (!catalog.getBookCatalogs().isEmpty()) {
@@ -81,19 +111,8 @@ public class CatalogService {
         }
     }
 
-    private List<Catalog> fetchChildrenRecursively(List<Catalog> catalogs) {
-        catalogs.forEach(catalog -> {
-            List<Catalog> children = catalogDAO.findByParentId(catalog.getId());
-            catalog.setChildren(fetchChildrenRecursively(children));
-        });
-        return catalogs;
-    }
 
-
-    public List<Catalog> getCatalogTree() {
-        List<Catalog> rootCatalogs = catalogDAO.findRootCatalogs();
-        return fetchChildrenRecursively(rootCatalogs);
-    }
+    @Transactional
 
     public void addBookToCatalog(int bookId, int catalogId) {
         Book book = bookDAO.findById(bookId)

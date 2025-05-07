@@ -54,7 +54,11 @@ public abstract class BaseDAO<T, ID> implements GenericDAO<T, ID> {
             entityManager.remove(entity);
         }
     }
-
+    @Transactional
+    @Override
+    public void saveAll(List<T> entities) {
+        entities.forEach(entityManager::persist);
+    }
 
 
 }
