@@ -37,13 +37,10 @@ public class RentalService {
     @Transactional
     public RentalDTO rentCopy(int userId, int copyId, LocalDateTime dueDate) {
         User user = userDAO.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
         BookCopy copy = bookCopyDAO.findById(copyId)
-                .orElseThrow(() -> new EntityNotFoundException("Book copy not found"));
-
-        if (copy.getStatus() != CopyStatus.AVAILABLE) {
-            throw new IllegalStateException("Copy is not available for rent");
-        }
+                .orElseThrow(() -> new EntityNotFoundException("Book copy not found with id: " + copyId));
+        validateCopyAvailableForRent(copy);
 
         copy.setStatus(CopyStatus.RENTED);
         bookCopyDAO.update(copy);
@@ -53,7 +50,7 @@ public class RentalService {
                 .copy(copy)
                 .startDate(LocalDateTime.now())
                 .dueDate(dueDate)
-                .status(RentalStatus.RENTED) // Исправлено на RENTED
+                .status(RentalStatus.RENTED)
                 .build();
 
         return rentalMapper.toDto(rentalDAO.save(rental));
@@ -106,4 +103,14 @@ public class RentalService {
                 .map(rentalMapper::toDto)
                 .toList();
     }
+    private void validateCopyAvailableForRent(BookCopy copy) {
+        if (copy.getStatus() != CopyStatus.AVAILABLE) {
+            throw new IllegalStateException(
+                    "Copy with id " + copy.getCopyId() + " is not available. Current status: " + copy.getStatus()
+            );
+        }
+    }
+
+
+
 }
