@@ -23,6 +23,4 @@ public class BookCatalog {
     @ManyToOne(optional = false)
     @JoinColumn(name = "catalog_id")
     private Catalog catalog;
-
-
 }

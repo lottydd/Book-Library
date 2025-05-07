@@ -1,0 +1,116 @@
+package com.example.booklibrary.service;
+
+import com.example.booklibrary.dao.BookCopyDAO;
+import com.example.booklibrary.dao.RentalDAO;
+import com.example.booklibrary.dao.UserDAO;
+import com.example.booklibrary.dto.request.rental.RentalDTO;
+import com.example.booklibrary.mapper.RentalMapper;
+import com.example.booklibrary.model.BookCopy;
+import com.example.booklibrary.model.Rental;
+import com.example.booklibrary.model.User;
+import com.example.booklibrary.util.CopyStatus;
+import com.example.booklibrary.util.RentalStatus;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+
+public class RentalService {
+
+
+    private final RentalDAO rentalDAO;
+    private final BookCopyDAO bookCopyDAO;
+    private final UserDAO userDAO;
+    private final RentalMapper rentalMapper;
+
+    public RentalService(RentalDAO rentalDAO, BookCopyDAO bookCopyDAO, UserDAO userDAO, RentalMapper rentalMapper) {
+        this.rentalDAO = rentalDAO;
+        this.bookCopyDAO = bookCopyDAO;
+        this.userDAO = userDAO;
+        this.rentalMapper = rentalMapper;
+    }
+
+    @Transactional
+    public RentalDTO rentCopy(int userId, int copyId, LocalDateTime dueDate) {
+        User user = userDAO.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        BookCopy copy = bookCopyDAO.findById(copyId)
+                .orElseThrow(() -> new EntityNotFoundException("Book copy not found with id: " + copyId));
+        validateCopyAvailableForRent(copy);
+
+        copy.setStatus(CopyStatus.RENTED);
+        bookCopyDAO.update(copy);
+
+        Rental rental = Rental.builder()
+                .user(user)
+                .copy(copy)
+                .startDate(LocalDateTime.now())
+                .dueDate(dueDate)
+                .status(RentalStatus.RENTED)
+                .build();
+
+        return rentalMapper.toDto(rentalDAO.save(rental));
+    }
+
+    @Transactional
+    public RentalDTO returnCopy(int copyId) {
+        BookCopy copy = bookCopyDAO.findById(copyId)
+                .orElseThrow(() -> new EntityNotFoundException("Book copy not found"));
+
+        Rental activeRental = rentalDAO.findActiveRentalByCopyId(copyId)
+                .orElseThrow(() -> new IllegalStateException("No active rental for this copy"));
+
+        copy.setStatus(CopyStatus.AVAILABLE);
+        bookCopyDAO.update(copy);
+
+        activeRental.setReturnDate(LocalDateTime.now());
+        activeRental.setStatus(RentalStatus.RETURNED); // Исправлено на RETURNED
+
+        return rentalMapper.toDto(rentalDAO.update(activeRental));
+    }
+
+    @Transactional(readOnly = true)
+    public List<RentalDTO> findOverdueRentals() {
+        return rentalDAO.findOverdueRentals(LocalDateTime.now()).stream()
+                .map(rentalMapper::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public void markOverdueRentalsAsLate() {
+        rentalDAO.findOverdueRentals(LocalDateTime.now()).forEach(rental -> {
+            rental.setStatus(RentalStatus.LATE);
+            rentalDAO.update(rental);
+        });
+    }
+
+    @Transactional(readOnly = true)
+
+    public List<RentalDTO> getUserRentalHistory(int userId) {
+        return rentalDAO.findByUserId(userId).stream()
+                .map(rentalMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+
+    public List<RentalDTO> getCopyRentalHistory(int copyId) {
+        return rentalDAO.findByCopyId(copyId).stream()
+                .map(rentalMapper::toDto)
+                .toList();
+    }
+    private void validateCopyAvailableForRent(BookCopy copy) {
+        if (copy.getStatus() != CopyStatus.AVAILABLE) {
+            throw new IllegalStateException(
+                    "Copy with id " + copy.getCopyId() + " is not available. Current status: " + copy.getStatus()
+            );
+        }
+    }
+
+
+
+}
