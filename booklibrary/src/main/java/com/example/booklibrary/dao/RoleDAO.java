@@ -3,9 +3,11 @@ package com.example.booklibrary.dao;
 
 import com.example.booklibrary.model.Role;
 import jakarta.persistence.NoResultException;
+import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
-
+@Repository
 public class RoleDAO extends BaseDAO<Role, Integer> {
 
     public RoleDAO() {
