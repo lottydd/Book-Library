@@ -54,7 +54,7 @@ public class BookCopyService {
 
     @Transactional
     public void deleteAllCopiesForBook(int bookId) {
-        bookCopyDAO.deleteByBookId(bookId); // NEW: Оптимизированный массовый delete
+        bookCopyDAO.deleteByBookId(bookId);
     }
     @Transactional
     public boolean hasRentedCopies(int bookId) {

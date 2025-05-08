@@ -113,7 +113,6 @@ public class CatalogService {
 
 
     @Transactional
-
     public void addBookToCatalog(int bookId, int catalogId) {
         Book book = bookDAO.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
