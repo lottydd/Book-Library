@@ -3,6 +3,7 @@ package com.example.booklibrary.dao;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
 import com.example.booklibrary.model.Catalog;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -58,4 +59,56 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
         }
         return count > 0;
     }
+
+    public List<Integer> findCatalogIdsByBookId(int bookId) {
+        logger.debug("Получение ID каталогов для книги {}", bookId);
+        return entityManager.createQuery(
+                        "SELECT bc.catalog.id FROM BookCatalog bc WHERE bc.book.id = :bookId",
+                        Integer.class)
+                .setParameter("bookId", bookId)
+                .getResultList();
+    }
+
+    public void deleteNotInCatalogs(int bookId, List<Integer> catalogIds) {
+        logger.debug("Удаление старых каталогов книги {}", bookId);
+        entityManager.createQuery(
+                        "DELETE FROM BookCatalog bc WHERE bc.book.id = :bookId AND bc.catalog.id NOT IN :catalogIds")
+                .setParameter("bookId", bookId)
+                .setParameter("catalogIds", catalogIds)
+                .executeUpdate();
+    }
+
+    public void addToCatalogs(int bookId, List<Integer> catalogIds) {
+        logger.debug("Добавление книги {} в {} каталогов", bookId, catalogIds.size());
+
+        Book book = entityManager.find(Book.class, bookId);
+        if (book == null) {
+            throw new EntityNotFoundException("Book not found with id: " + bookId);
+        }
+
+        for (Integer catalogId : catalogIds) {
+            Catalog catalog = entityManager.find(Catalog.class, catalogId);
+            if (catalog == null) {
+                throw new EntityNotFoundException("Catalog not found with id: " + catalogId);
+            }
+
+            BookCatalog bc = new BookCatalog();
+            bc.setBook(book);
+            bc.setCatalog(catalog);
+            entityManager.persist(bc);
+        }
+    }
+
+    public int deleteByBookId(int bookId) {
+        logger.debug("Массовое удаление связей книги ID {}", bookId);
+        int deletedCount = entityManager.createQuery(
+                        "DELETE FROM BookCatalog bc WHERE bc.book.id = :bookId")
+                .setParameter("bookId", bookId)
+                .executeUpdate();
+
+        logger.info("Удалено {} связей для книги ID {}", deletedCount, bookId);
+        return deletedCount;
+    }
+
 }
+

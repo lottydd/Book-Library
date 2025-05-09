@@ -7,17 +7,22 @@ import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
 import com.example.booklibrary.model.Catalog;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CatalogService {
-    private CatalogDAO catalogDAO;
-    private BookDAO bookDAO;
-    private BookCatalogDAO bookCatalogDAO;
+    private final CatalogDAO catalogDAO;
+    private final BookDAO bookDAO;
+    private final BookCatalogDAO bookCatalogDAO;
+
+    private static final Logger logger = LoggerFactory.getLogger(CatalogService.class);
 
     public CatalogService(CatalogDAO catalogDAO, BookDAO bookDAO, BookCatalogDAO bookCatalogDAO) {
         this.catalogDAO = catalogDAO;
@@ -27,27 +32,40 @@ public class CatalogService {
 
     @Transactional
     public void addBookToCatalogs(int bookId, List<Integer> catalogIds) {
+        logger.debug("Попытка добавления книги {}  в {} каталог", bookId, catalogIds.size());
         if (!bookDAO.existsById(bookId)) {
-            throw new EntityNotFoundException("Book not found");
+            logger.warn("Книга с ID {} не найдена", bookId);
+            throw new EntityNotFoundException("Книга не найдена");
         }
         catalogIds.forEach(catalogId -> addBookToCatalog(bookId, catalogId));
+        logger.info("Книга {} добавлена в {} каталог", bookId, catalogIds.size());
     }
-
+    //Остановка здесь)))
     @Transactional
+    public void updateCatalogs(int bookId, List<Integer> newCatalogIds) {
+        bookCatalogDAO.deleteNotInCatalogs(bookId, newCatalogIds);
 
-    public void updateCatalogs(int bookId, List<Integer> catalogIds) {
-        removeBookFromAllCatalogs(bookId);
-        addBookToCatalogs(bookId, catalogIds);
+        List<Integer> existingIds = bookCatalogDAO.findCatalogIdsByBookId(bookId);
+        List<Integer> toAdd = newCatalogIds.stream()
+                .filter(id -> !existingIds.contains(id))
+                .collect(Collectors.toList());
+
+        if (!toAdd.isEmpty()) {
+            bookCatalogDAO.addToCatalogs(bookId, toAdd);
+        }
     }
 
     @Transactional
 
     public void removeBookFromAllCatalogs(int bookId) {
-        Book book = bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        logger.debug("Удаление книги ID {} из всех каталогов", bookId);
 
-        List<BookCatalog> bookCatalogs = bookCatalogDAO.findByBookId(bookId);
-        bookCatalogDAO.deleteAll(bookCatalogs);
+        if (!bookDAO.existsById(bookId)) {
+            logger.warn("Книга с ID  {} не найдена", bookId);
+            throw new EntityNotFoundException("Book not found");
+        }
+        int deletedCount = bookCatalogDAO.deleteByBookId(bookId);
+        logger.info("Удалено {} связей книги с каталогами", deletedCount);
     }
 
     @Transactional
@@ -63,7 +81,6 @@ public class CatalogService {
             catalogDAO.update(parent);
         }
         catalogDAO.save(catalog);
-
 
     }
 
@@ -110,7 +127,6 @@ public class CatalogService {
             catalogDAO.delete(catalog.getId());
         }
     }
-
 
     @Transactional
     public void addBookToCatalog(int bookId, int catalogId) {
