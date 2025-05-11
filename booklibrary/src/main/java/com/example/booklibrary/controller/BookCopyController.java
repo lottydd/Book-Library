@@ -24,17 +24,12 @@ public class BookCopyController {
         bookCopyService.addCopies(bookId, count);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+//нахуй не нужно
 
-    @PatchMapping("/{copyId}/status")
-    public ResponseEntity<BookCopyDTO> updateCopyStatus(
-            @PathVariable int copyId,
-            @RequestParam CopyStatus status) {
-        return ResponseEntity.ok(bookCopyService.updateCopyStatus(copyId, status));
-    }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteAllCopies(@PathVariable int bookId) {
-        bookCopyService.deleteAllCopiesForBook(bookId);
+        bookCopyService.deleteBookCopies(bookId);
         return ResponseEntity.noContent().build();
     }
 }

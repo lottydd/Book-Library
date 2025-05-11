@@ -9,7 +9,6 @@ import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +31,7 @@ public class BookService {
     }
 
     @Transactional
-    public BookResponseDTO createBook(BookAddDTO dto) {
+    public BookResponseDTO createBook(BookCreateDTO dto) {
         logger.debug("Попытка создания книги");
         if (bookDAO.findByIsbn(dto.getIsbn()).isPresent()) {
             logger.warn("Книга с таким ISBN уже существует");
@@ -44,8 +43,6 @@ public class BookService {
 
         logger.debug("Добавление {} копий книги", dto.getCopiesCount());
         bookCopyService.addCopies(savedBook.getId(), dto.getCopiesCount());
-        catalogService.addBookToCatalogs(savedBook.getId(), dto.getCatalogIds());
-
         logger.info("Книга успешно создана. ID: {}", savedBook.getId());
         return bookMapper.toResponseDTO(savedBook);
     }
@@ -76,7 +73,8 @@ public class BookService {
         Book book = findBookByIdOrThrow(bookId);
         validateDeletion(book);
         logger.debug("Удаление зависимостей Книги {}", bookId);
-        bookCopyService.deleteDependencies(book);
+        catalogService.removeBookFromAllCatalogs(bookId);
+        bookCopyService.deleteBookCopies(bookId);
         bookDAO.delete(bookId);
         logger.info("Книга {} успешно удалена ", bookId);
     }

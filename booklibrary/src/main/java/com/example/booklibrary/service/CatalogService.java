@@ -3,6 +3,8 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookCatalogDAO;
 import com.example.booklibrary.dao.BookDAO;
 import com.example.booklibrary.dao.CatalogDAO;
+import com.example.booklibrary.dto.request.catalog.CatalogAddBookDTO;
+import com.example.booklibrary.dto.request.catalog.CatalogCreateDTO;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
 import com.example.booklibrary.model.Catalog;
@@ -30,6 +32,40 @@ public class CatalogService {
         this.bookCatalogDAO = bookCatalogDAO;
     }
 
+//переделать на DtoResponse
+    @Transactional
+    public void createCatalog(CatalogCreateDTO dto) {
+        Catalog catalog = new Catalog();
+        catalog.setName(dto.getName());
+        if (dto.getParentId() != null) {
+            Catalog parent = catalogDAO.findById(dto.getParentId())
+                    .orElseThrow(() -> new EntityNotFoundException("Parent catalog not found"));
+            catalog.setParent(parent);
+            parent.getChildren().add(catalog);
+            catalogDAO.update(parent);
+        }
+        catalogDAO.save(catalog);
+    }
+
+    //переделать под dto
+    @Transactional
+    public void addBookToCatalog(CatalogAddBookDTO dto , int bookId, int catalogId) {
+        Book book = bookDAO.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Catalog catalog = catalogDAO.findById(catalogId)
+                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
+
+        if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {
+            throw new IllegalStateException("Book is already in the catalog");
+        }
+
+        BookCatalog bookCatalog = new BookCatalog();
+        bookCatalog.setBook(book);
+        bookCatalog.setCatalog(catalog);
+        bookCatalogDAO.save(bookCatalog);
+    }
+
+
     @Transactional
     public void addBookToCatalogs(int bookId, List<Integer> catalogIds) {
         logger.debug("Попытка добавления книги {}  в {} каталог", bookId, catalogIds.size());
@@ -40,9 +76,11 @@ public class CatalogService {
         catalogIds.forEach(catalogId -> addBookToCatalog(bookId, catalogId));
         logger.info("Книга {} добавлена в {} каталог", bookId, catalogIds.size());
     }
+
     //Остановка здесь)))
     @Transactional
     public void updateCatalogs(int bookId, List<Integer> newCatalogIds) {
+
         bookCatalogDAO.deleteNotInCatalogs(bookId, newCatalogIds);
 
         List<Integer> existingIds = bookCatalogDAO.findCatalogIdsByBookId(bookId);
@@ -68,21 +106,6 @@ public class CatalogService {
         logger.info("Удалено {} связей книги с каталогами", deletedCount);
     }
 
-    @Transactional
-
-    public void createCatalog(String name, Integer parentId) {
-        Catalog catalog = new Catalog();
-        catalog.setName(name);
-        if (parentId != null) {
-            Catalog parent = catalogDAO.findById(parentId)
-                    .orElseThrow(() -> new EntityNotFoundException("Parent catalog not found"));
-            catalog.setParent(parent);
-            parent.getChildren().add(catalog);
-            catalogDAO.update(parent);
-        }
-        catalogDAO.save(catalog);
-
-    }
 
     @Transactional(readOnly = true)
     public List<Catalog> getCatalogTree() {
@@ -128,21 +151,5 @@ public class CatalogService {
         }
     }
 
-    @Transactional
-    public void addBookToCatalog(int bookId, int catalogId) {
-        Book book = bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
-        Catalog catalog = catalogDAO.findById(catalogId)
-                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
-
-        if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {
-            throw new IllegalStateException("Book is already in the catalog");
-        }
-
-        BookCatalog bookCatalog = new BookCatalog();
-        bookCatalog.setBook(book);
-        bookCatalog.setCatalog(catalog);
-        bookCatalogDAO.save(bookCatalog);
-    }
 
 }

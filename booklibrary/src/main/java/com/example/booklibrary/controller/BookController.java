@@ -1,6 +1,6 @@
 package com.example.booklibrary.controller;
 
-import com.example.booklibrary.dto.request.book.BookAddDTO;
+import com.example.booklibrary.dto.request.book.BookCreateDTO;
 import com.example.booklibrary.dto.request.book.BookDetailsDTO;
 import com.example.booklibrary.dto.request.book.BookUpdateDTO;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
@@ -22,7 +22,7 @@ public class BookController {
 
 
     @PostMapping
-    public ResponseEntity<BookResponseDTO> addBook(@RequestBody @Valid BookAddDTO dto) {
+    public ResponseEntity<BookResponseDTO> addBook(@RequestBody @Valid BookCreateDTO dto) {
         return new ResponseEntity<>(bookService.createBook(dto), HttpStatus.CREATED);
     }
 

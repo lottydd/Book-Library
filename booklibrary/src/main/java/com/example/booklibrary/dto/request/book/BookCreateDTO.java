@@ -2,7 +2,6 @@ package com.example.booklibrary.dto.request.book;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookAddDTO {
+public class BookCreateDTO {
     
         @NotBlank(message = "Author is required")
         private String author;

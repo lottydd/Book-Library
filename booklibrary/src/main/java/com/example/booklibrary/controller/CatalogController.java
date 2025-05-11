@@ -19,7 +19,7 @@ public class CatalogController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createCatalog(
+    public ResponseEntity<CatalogRespon> createCatalog(
             @RequestParam String name,
             @RequestParam(required = false) Integer parentId) {
         catalogService.createCatalog(name, parentId);

@@ -54,7 +54,6 @@ public class RentalService {
                 });
 
         validateCopyAvailableForRent(copy);
-
         copy.setStatus(CopyStatus.RENTED);
         bookCopyDAO.update(copy);
         logger.debug("Статус копии изменен на RENTED. CopyID: {}", copyId);
