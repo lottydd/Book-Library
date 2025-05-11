@@ -16,10 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CatalogService {
@@ -36,7 +34,6 @@ public class CatalogService {
         this.bookCatalogDAO = bookCatalogDAO;
         this.catalogMapper = catalogMapper;
     }
-
 
     @Transactional
     public CatalogCreateResponseDTO createCatalog(CatalogCreateDTO dto) {
@@ -108,7 +105,7 @@ public class CatalogService {
         });
         return catalogs;
     }
-    
+
     @Transactional
     private void deleteCatalogRecursive(Catalog catalog) {
         if (!catalog.getBookCatalogs().isEmpty()) {

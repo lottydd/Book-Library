@@ -29,49 +29,6 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    @Transactional(readOnly = true)
-    private void validateRegistrationData(UserCreateDTO dto) {
-        logger.debug("Валидация данных регистрации пользователя");
-        if (dto == null) {
-            logger.warn("Попытка регистрации с null данными");
-            throw new IllegalArgumentException("Registration data cannot be null");
-        }
-
-        if (userDAO.existsByEmailOrUsername(dto.getEmail(), dto.getUsername())) {
-            logger.warn("Попытка регистрации с занятым email или username. Email: {}, Username: {}",
-                    dto.getEmail(), dto.getUsername());
-            throw new IllegalArgumentException("Email or username already taken");
-        }
-        logger.debug("Данные регистрации валидны");
-    }
-
-    @Transactional(readOnly = true)
-    private void validateUpdateData(UserUpdateDTO dto, Integer currentUserId) {
-        logger.debug("Валидация данных обновления пользователя. UserID: {}", currentUserId);
-        if (dto == null) {
-            logger.warn("Попытка обновления с null данными");
-            throw new IllegalArgumentException("Update data cannot be null");
-        }
-
-        userDAO.findByEmail(dto.getEmail())
-                .filter(user -> !user.getId().equals(currentUserId))
-                .ifPresent(user -> {
-                    logger.warn("Попытка обновления на занятый email. Email: {}, CurrentUserID: {}",
-                            dto.getEmail(), currentUserId);
-                    throw new IllegalArgumentException("Email " + dto.getEmail() + " is already taken by another user");
-                });
-
-        userDAO.findByUsername(dto.getUsername())
-                .filter(user -> !user.getId().equals(currentUserId))
-                .ifPresent(user -> {
-                    logger.warn("Попытка обновления на занятый username. Username: {}, CurrentUserID: {}",
-                            dto.getUsername(), currentUserId);
-                    throw new IllegalArgumentException("Username " + dto.getUsername() + " is already taken by another user");
-                });
-        logger.debug("Данные обновления валидны");
-    }
-
-
     @Transactional
     public void registerUser(UserCreateDTO userCreateDTO) {
         logger.debug("Попытка регистрации нового пользователя. Email: {}, Username: {}",
@@ -153,5 +110,49 @@ public class UserService {
                     return new EntityNotFoundException("User not found");
                 });
     }
+
+
+    @Transactional(readOnly = true)
+    private void validateRegistrationData(UserCreateDTO dto) {
+        logger.debug("Валидация данных регистрации пользователя");
+        if (dto == null) {
+            logger.warn("Попытка регистрации с null данными");
+            throw new IllegalArgumentException("Registration data cannot be null");
+        }
+
+        if (userDAO.existsByEmailOrUsername(dto.getEmail(), dto.getUsername())) {
+            logger.warn("Попытка регистрации с занятым email или username. Email: {}, Username: {}",
+                    dto.getEmail(), dto.getUsername());
+            throw new IllegalArgumentException("Email or username already taken");
+        }
+        logger.debug("Данные регистрации валидны");
+    }
+
+    @Transactional(readOnly = true)
+    private void validateUpdateData(UserUpdateDTO dto, Integer currentUserId) {
+        logger.debug("Валидация данных обновления пользователя. UserID: {}", currentUserId);
+        if (dto == null) {
+            logger.warn("Попытка обновления с null данными");
+            throw new IllegalArgumentException("Update data cannot be null");
+        }
+
+        userDAO.findByEmail(dto.getEmail())
+                .filter(user -> !user.getId().equals(currentUserId))
+                .ifPresent(user -> {
+                    logger.warn("Попытка обновления на занятый email. Email: {}, CurrentUserID: {}",
+                            dto.getEmail(), currentUserId);
+                    throw new IllegalArgumentException("Email " + dto.getEmail() + " is already taken by another user");
+                });
+
+        userDAO.findByUsername(dto.getUsername())
+                .filter(user -> !user.getId().equals(currentUserId))
+                .ifPresent(user -> {
+                    logger.warn("Попытка обновления на занятый username. Username: {}, CurrentUserID: {}",
+                            dto.getUsername(), currentUserId);
+                    throw new IllegalArgumentException("Username " + dto.getUsername() + " is already taken by another user");
+                });
+        logger.debug("Данные обновления валидны");
+    }
+
 
 }

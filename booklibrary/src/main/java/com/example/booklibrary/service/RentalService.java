@@ -145,6 +145,7 @@ public class RentalService {
                 .map(rentalMapper::toDto)
                 .toList();
     }
+
     private void validateCopyAvailableForRent(BookCopy copy) {
         logger.debug("Проверка доступности копии для аренды. CopyID: {}", copy.getCopyId());
         if (copy.getStatus() != CopyStatus.AVAILABLE) {
@@ -155,7 +156,4 @@ public class RentalService {
             );
         }
     }
-
-
-
 }

@@ -7,6 +7,7 @@ import com.example.booklibrary.dto.response.catalog.CatalogAddBookResponseDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogCreateResponseDTO;
 import com.example.booklibrary.model.Catalog;
 import com.example.booklibrary.service.CatalogService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +50,12 @@ public class CatalogController {
     }
 
     @DeleteMapping("/{catalogId}")
-    public ResponseEntity<Void> deleteCatalog(@PathVariable int catalogId) {
-        catalogService.deleteCatalog(catalogId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteCatalog(@PathVariable int catalogId) {
+        try {
+            catalogService.deleteCatalog(catalogId);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

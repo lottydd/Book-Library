@@ -24,8 +24,6 @@ public class BookCopyController {
         bookCopyService.addCopies(bookId, count);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
-//нахуй не нужно
-
 
     @DeleteMapping
     public ResponseEntity<Void> deleteAllCopies(@PathVariable int bookId) {
