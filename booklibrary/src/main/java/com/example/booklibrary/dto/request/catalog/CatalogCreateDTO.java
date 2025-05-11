@@ -7,8 +7,10 @@ import lombok.Data;
 @Data
 public class CatalogCreateDTO {
 
-    @Nullable
-    private Integer parentId;
     @NotBlank
     private String name;
+
+    @Nullable
+    private Integer parentId;
+
 }

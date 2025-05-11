@@ -1,10 +1,12 @@
 package com.example.booklibrary.dto.request.catalog;
 
-import java.util.List;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+import lombok.Getter;
 
+import java.util.List;
 public class CatalogUpdateDTO {
 
-   private String name,
-Integer parentId,
-List<CatalogUpdateDTO> children
-) {}
+
+   }

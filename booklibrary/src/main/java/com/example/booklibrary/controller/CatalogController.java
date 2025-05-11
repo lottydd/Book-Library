@@ -1,7 +1,13 @@
 package com.example.booklibrary.controller;
 
+import com.example.booklibrary.dto.request.book.BookUpdateDTO;
+import com.example.booklibrary.dto.request.catalog.CatalogAddBookDTO;
+import com.example.booklibrary.dto.request.catalog.CatalogCreateDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogAddBookResponseDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogCreateResponseDTO;
 import com.example.booklibrary.model.Catalog;
 import com.example.booklibrary.service.CatalogService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +25,10 @@ public class CatalogController {
     }
 
     @PostMapping
-    public ResponseEntity<CatalogRespon> createCatalog(
-            @RequestParam String name,
-            @RequestParam(required = false) Integer parentId) {
-        catalogService.createCatalog(name, parentId);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<CatalogCreateResponseDTO> createCatalog(
+            @RequestBody @Valid CatalogCreateDTO dto) {
+        CatalogCreateResponseDTO response = catalogService.createCatalog(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/tree")
@@ -31,12 +36,16 @@ public class CatalogController {
         return ResponseEntity.ok(catalogService.getCatalogTree());
     }
 
-    @PostMapping("/{catalogId}/books/{bookId}")
-    public ResponseEntity<Void> addBookToCatalog(
-            @PathVariable int catalogId,
-            @PathVariable int bookId) {
-        catalogService.addBookToCatalog(bookId, catalogId);
-        return ResponseEntity.ok().build();
+    @PostMapping("/{catalogId}/books")
+    public ResponseEntity<CatalogAddBookResponseDTO> addBookToCatalog(
+            @PathVariable Integer catalogId,
+            @RequestBody @Valid CatalogAddBookDTO dto) {
+        if (!catalogId.equals(dto.getCatalogId())) {
+            throw new IllegalArgumentException("Catalog ID in path and body must match");
+        }
+
+        CatalogAddBookResponseDTO response = catalogService.addBookToCatalog(dto);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{catalogId}")
