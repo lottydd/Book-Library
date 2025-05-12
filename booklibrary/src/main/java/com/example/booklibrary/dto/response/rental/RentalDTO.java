@@ -1,5 +1,8 @@
 package com.example.booklibrary.dto.response.rental;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,14 +14,27 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RentalCopyStoryResponseDTO {
-    private Integer rentalId;
-    private Integer userId;
-    private String userUsername;
-    private String status;
+public class RentalDTO {
+    @Min(1)
+    private int rentalId;
+
+    @Min(1)
+    private int userId;
+
+    @Min(1)
+    private int copyId;
+
+    @NotBlank
     private String bookTitle;
+
+    @NotNull
     private LocalDateTime startDate;
+
+    @NotNull
     private LocalDateTime dueDate;
+
     private LocalDateTime returnDate;
 
+    @NotBlank
+    private String status;
 }

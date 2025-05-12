@@ -3,10 +3,12 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookCatalogDAO;
 import com.example.booklibrary.dao.BookDAO;
 import com.example.booklibrary.dao.CatalogDAO;
+import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.catalog.CatalogAddBookDTO;
 import com.example.booklibrary.dto.request.catalog.CatalogCreateDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogAddBookResponseDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogCreateResponseDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogTreeDTO;
 import com.example.booklibrary.mapper.CatalogMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
@@ -16,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,16 +88,16 @@ public class CatalogService {
     }
 
     @Transactional
-    public void deleteCatalog(int catalogId) {
-        Catalog catalog = catalogDAO.findById(catalogId)
+    public void deleteCatalog(RequestIdDTO dto) {
+        Catalog catalog = catalogDAO.findById(dto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
         deleteCatalogRecursive(catalog);
     }
 
     @Transactional(readOnly = true)
-    public List<Catalog> getCatalogTree() {
+    public List<CatalogTreeDTO> getCatalogTree() {
         List<Catalog> rootCatalogs = catalogDAO.findRootCatalogs();
-        return fetchChildrenRecursively(rootCatalogs);
+        return catalogMapper.toTreeDtoList(rootCatalogs);
     }
 
     @Transactional

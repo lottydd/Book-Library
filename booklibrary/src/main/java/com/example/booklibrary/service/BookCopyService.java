@@ -2,7 +2,9 @@ package com.example.booklibrary.service;
 
 import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.BookDAO;
+import com.example.booklibrary.dto.request.bookcopy.BookAddCopyDTO;
 import com.example.booklibrary.dto.request.bookcopy.BookCopyDTO;
+import com.example.booklibrary.dto.request.bookcopy.BookCopyUpdateDTO;
 import com.example.booklibrary.mapper.BookCopyMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCopy;
@@ -23,26 +25,24 @@ public class BookCopyService {
     private final BookCopyDAO bookCopyDAO;
     private final BookCopyMapper bookCopyMapper;
     private final BookDAO bookDAO;
-    private final CatalogService catalogService;
 
     private static final Logger logger = LoggerFactory.getLogger(BookCopyService.class);
 
-    public BookCopyService(BookCopyDAO bookCopyDAO, BookCopyMapper bookCopyMapper, BookDAO bookDAO, CatalogService catalogService) {
+    public BookCopyService(BookCopyDAO bookCopyDAO, BookCopyMapper bookCopyMapper, BookDAO bookDAO) {
         this.bookCopyDAO = bookCopyDAO;
         this.bookCopyMapper = bookCopyMapper;
         this.bookDAO = bookDAO;
-        this.catalogService = catalogService;
     }
 
     @Transactional
-    public void addCopies(int bookId, int count) {
-        logger.debug("Попытка добавления {} копий для книги {}", count, bookId);
-        Book book = bookDAO.findById(bookId)
+    public void addCopies(BookAddCopyDTO dto) {
+        logger.debug("Попытка добавления {} копий для книги {}", dto.getCount(), dto.getBookId());
+        Book book = bookDAO.findById(dto.getBookId())
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
         logger.debug("Книга найдена: ID: {}, Название: '{}'",
                 book.getId(), book.getBookTitle());
         List<BookCopy> copies = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < dto.getCount(); i++) {
             copies.add(BookCopy.builder()
                     .book(book)
                     .status(CopyStatus.AVAILABLE)
@@ -53,19 +53,44 @@ public class BookCopyService {
 
         bookCopyDAO.saveAll(copies);
         logger.info("Успешно добавлено {} копий для книги ID: {}",
-                count,
+                dto.getCount(),
+                dto.getBookId());
+    }
+
+    @Transactional
+    public void addCopiesByCountAndId(int bookCount, int bookId) {
+        logger.debug("Попытка добавления  {} копий для книги  {}", bookCount, bookId);
+        Book book = bookDAO.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        logger.debug("Книга  найдена: ID: {}, Название: '{}'",
+                book.getId(), book.getBookTitle());
+        List<BookCopy> copies = new ArrayList<>();
+        for (int i = 0; i < bookCount; i++) {
+            copies.add(BookCopy.builder()
+                    .book(book)
+                    .status(CopyStatus.AVAILABLE)
+                    .build());
+        }
+        logger.debug("Создано  {} новых копий. Статус: {}",
+                copies.size(), CopyStatus.AVAILABLE);
+
+        bookCopyDAO.saveAll(copies);
+        logger.info("Успешно  добавлено {} копий для книги ID: {}",
+                bookCount,
                 bookId);
     }
+
     //ADMIN
     @Transactional
-    public BookCopyDTO updateCopyStatus(int copyId, CopyStatus status) {
-        logger.debug("Попытка обновления статуса {} копии  {}", status, copyId);
-        BookCopy copy = getCopyById(copyId);
-        validateStatusChange(copy, status);
-        copy.setStatus(status);
-        logger.debug("Cтатус копии обновлен: {}", status);
+    public BookCopyDTO updateCopyStatus(BookCopyUpdateDTO dto) {
+        logger.debug("Попытка обновления статуса {} копии  {}", dto.getStatus(), dto.getCopyId());
+        BookCopy copy = getCopyById(dto.getCopyId());
+        validateStatusChange(copy, dto.getStatus());
+        copy.setStatus(dto.getStatus());
+        logger.debug("Cтатус копии обновлен: {}", dto.getStatus());
         return bookCopyMapper.toDto(bookCopyDAO.save(copy));
     }
+
     private void validateStatusChange(BookCopy copy, CopyStatus newStatus) {
         if (newStatus == CopyStatus.RENTED && copy.getStatus() != CopyStatus.AVAILABLE) {
             throw new IllegalStateException("Копия должна быть доступна для аренды");
@@ -76,6 +101,7 @@ public class BookCopyService {
     public void deleteBookCopies(int bookId) {
         bookCopyDAO.deleteByBookId(bookId);
     }
+
     @Transactional
     public boolean hasRentedCopies(int bookId) {
         return bookCopyDAO.existsByBookIdAndStatus(bookId, CopyStatus.RENTED);

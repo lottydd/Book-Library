@@ -3,7 +3,13 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.RentalDAO;
 import com.example.booklibrary.dao.UserDAO;
-import com.example.booklibrary.dto.request.rental.RentalDTO;
+import com.example.booklibrary.dto.request.RequestIdDTO;
+import com.example.booklibrary.dto.request.rental.RentalCopyDTO;
+import com.example.booklibrary.dto.response.rental.RentalDTO;
+import com.example.booklibrary.dto.response.rental.RentalCopyResponseDTO;
+import com.example.booklibrary.dto.response.rental.RentalCopyStoryResponseDTO;
+import com.example.booklibrary.dto.response.rental.RentalLateResponseDTO;
+import com.example.booklibrary.dto.response.rental.RentalUserHistoryResponseDTO;
 import com.example.booklibrary.mapper.RentalMapper;
 import com.example.booklibrary.model.BookCopy;
 import com.example.booklibrary.model.Rental;
@@ -38,81 +44,79 @@ public class RentalService {
     }
 
     @Transactional
-    public RentalDTO rentCopy(
-            int userId, int copyId, LocalDateTime dueDate) {
-        logger.debug("Попытка аренды копии книги. UserID: {}, CopyID: {}", userId, copyId);
-
-        User user = userDAO.findById(userId)
+    public RentalDTO rentCopy(RentalCopyDTO dto) {
+        logger.debug("Попытка аренды копии книги. UserID: {}, CopyID: {}", dto.getUserId(), dto.getCopyId());
+        User user = userDAO.findById(dto.getUserId())
                 .orElseThrow(() -> {
-                    logger.warn("Пользователь не найден. UserID: {}", userId);
-                    return new EntityNotFoundException("User not found with id: " + userId);
+                    logger.warn("Пользователь не найден. UserID: {}", dto.getUserId());
+                    return new EntityNotFoundException("User not found with id: " + dto.getUserId());
                 });
 
-        BookCopy copy = bookCopyDAO.findById(copyId)
+        BookCopy copy = bookCopyDAO.findById(dto.getCopyId())
                 .orElseThrow(() -> {
-                    logger.warn("Копия книги не найдена.  CopyID:  {}", copyId);
-                    return new EntityNotFoundException("Book copy not found with id: " + copyId);
+                    logger.warn("Копия книги не найдена.  CopyID:  {}", dto.getCopyId());
+                    return new EntityNotFoundException("Book copy not found with id: " + dto.getCopyId());
                 });
 
         validateCopyAvailableForRent(copy);
         copy.setStatus(CopyStatus.RENTED);
         bookCopyDAO.update(copy);
-        logger.debug("Статус копии изменен на RENTED. CopyID: {}", copyId);
+        logger.debug("Статус копии изменен на RENTED. CopyID: {}", dto.getCopyId());
 
         Rental rental = Rental.builder()
                 .user(user)
                 .copy(copy)
                 .startDate(LocalDateTime.now())
-                .dueDate(dueDate)
+                .dueDate(dto.getDueDate())
                 .status(RentalStatus.RENTED)
                 .build();
 
         Rental savedRental = rentalDAO.save(rental);
         logger.info("Аренда успешно создана. RentalID: {}, UserID: {}, CopyID: {}",
-                savedRental.getId(), userId, copyId);
+                savedRental.getId(), dto.getUserId(), dto.getCopyId());
         return rentalMapper.toDto(savedRental);
     }
 
     @Transactional
-    public RentalDTO returnCopy(int copyId) {
-        logger.debug("Попытка возврата копии книги. CopyID: {}", copyId);
+    public RentalDTO returnCopy(RequestIdDTO dto) {
+        logger.debug("Попытка возврата копии книги. CopyID: {}", dto.getId());
 
-        BookCopy copy = bookCopyDAO.findById(copyId)
+        BookCopy copy = bookCopyDAO.findById(dto.getId())
                 .orElseThrow(() -> {
-                    logger.warn("Копия книги не найдена. CopyID: {}", copyId);
+                    logger.warn("Копия книги не найдена. CopyID: {}", dto.getId());
                     return new EntityNotFoundException("Book copy not found");
                 });
 
-        Rental activeRental = rentalDAO.findActiveRentalByCopyId(copyId)
+        Rental activeRental = rentalDAO.findActiveRentalByCopyId(dto.getId())
                 .orElseThrow(() -> {
-                    logger.warn("Активная аренда не найдена для копии. CopyID: {}", copyId);
+                    logger.warn("Активная аренда не найдена для копии. CopyID: {}", dto.getId());
                     return new IllegalStateException("No active rental for this copy");
                 });
 
         copy.setStatus(CopyStatus.AVAILABLE);
         bookCopyDAO.update(copy);
-        logger.debug("Статус копии изменен на AVAILABLE. CopyID: {}", copyId);
+        logger.debug("Статус копии изменен на AVAILABLE. CopyID: {}", dto.getId());
 
         activeRental.setReturnDate(LocalDateTime.now());
         activeRental.setStatus(RentalStatus.RETURNED);
         Rental updatedRental = rentalDAO.update(activeRental);
 
         logger.info("Копия успешно возвращена. RentalID: {}, CopyID: {}",
-                updatedRental.getId(), copyId);
-
+                updatedRental.getId(), dto.getId());
         return rentalMapper.toDto(updatedRental);
     }
-//Может сделать чтобы просроченных за определенный период
+
     @Transactional(readOnly = true)
-    public List<RentalDTO> findOverdueRentals() {
+    public List<RentalLateResponseDTO> findOverdueRentals() {
         logger.debug("Запрос просроченных аренд");
         List<Rental> overdueRentals = rentalDAO.findOverdueRentals(LocalDateTime.now());
         logger.info("Найдено {} просроченных аренд", overdueRentals.size());
         return overdueRentals.stream()
-                .map(rentalMapper::toDto)
+                .map(rentalMapper::toLateDto)
                 .toList();
     }
-    //Оставить как админский метод?
+
+    //Оставить как админский метод
     @Transactional
     public void markOverdueRentalsAsLate() {
         logger.debug("Пометка просроченных аренд как LATE");
@@ -125,23 +129,24 @@ public class RentalService {
         logger.info("Помечено {} аренд как LATE", overdueRentals.size());
     }
 
+
     @Transactional(readOnly = true)
-    public List<RentalDTO> getUserRentalHistory(int userId) {
+    public List<RentalUserHistoryResponseDTO> getUserRentalHistory(int userId) {
         logger.debug("Запрос истории аренд пользователя. UserID: {}", userId);
         List<Rental> rentals = rentalDAO.findByUserId(userId);
         logger.info("Найдено {} аренд для пользователя UserID: {}", rentals.size(), userId);
         return rentals.stream()
-                .map(rentalMapper::toDto)
+                .map(rentalMapper::toUserHistoryDto)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<RentalDTO> getCopyRentalHistory(int copyId) {
+    public List<RentalCopyStoryResponseDTO> getCopyRentalHistory(int copyId) {
         logger.debug("Запрос истории аренд копии книги. CopyID: {}", copyId);
         List<Rental> rentals = rentalDAO.findByCopyId(copyId);
         logger.info("Найдено {} аренд для копии CopyID: {}", rentals.size(), copyId);
         return rentals.stream()
-                .map(rentalMapper::toDto)
+                .map(rentalMapper::toCopyStoryDto)
                 .toList();
     }
 

@@ -2,8 +2,10 @@ package com.example.booklibrary.service;
 
 import com.example.booklibrary.dao.RoleDAO;
 import com.example.booklibrary.dao.UserDAO;
+import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.user.UserCreateDTO;
 import com.example.booklibrary.dto.request.user.UserUpdateDTO;
+import com.example.booklibrary.dto.response.user.UserDTO;
 import com.example.booklibrary.mapper.UserMapper;
 import com.example.booklibrary.model.Role;
 import com.example.booklibrary.model.User;
@@ -30,7 +32,7 @@ public class UserService {
     }
 
     @Transactional
-    public void registerUser(UserCreateDTO userCreateDTO) {
+    public UserDTO registerUser(UserCreateDTO userCreateDTO) {
         logger.debug("Попытка регистрации нового пользователя. Email: {}, Username: {}",
                 userCreateDTO.getEmail(), userCreateDTO.getUsername());
 
@@ -41,11 +43,12 @@ public class UserService {
 
         logger.info("Пользователь успешно зарегистрирован. UserID: {}, Email: {}",
                 savedUser.getId(), savedUser.getEmail());
+        return userMapper.toDto(savedUser);
     }
 
 
     @Transactional
-    public void assignRoleToUser(int userId, String roleName) {
+    public UserDTO assignRoleToUser(int userId, String roleName) {
         logger.debug("Попытка назначения роли пользователю. UserID: {}, Role: {}", userId, roleName);
 
         User user = userDAO.findById(userId)
@@ -61,12 +64,13 @@ public class UserService {
                 });
 
         user.getRoles().add(role);
+        userDAO.save(user);
         logger.info("Роль успешно назначена. UserID: {}, Role: {}", userId, roleName);
+        return userMapper.toDto(user);
     }
 
-
     @Transactional
-    public void updateUser(int userId, UserUpdateDTO userUpdateDTO) {
+    public UserDTO updateUser(int userId, UserUpdateDTO userUpdateDTO) {
         logger.debug("Попытка обновления пользователя. UserID: {}", userId);
 
         validateUpdateData(userUpdateDTO, userId);
@@ -78,37 +82,41 @@ public class UserService {
                 });
 
         userMapper.updateFromDto(userUpdateDTO, user);
+
+        User updatedUser = userDAO.save(user);
+
         logger.info("Данные пользователя обновлены. UserID: {}", userId);
+        return userMapper.toDto(updatedUser);
     }
 
     @Transactional
-    public void deleteUser(int userId) {
-        logger.debug("Попытка удаления пользователя. UserID: {}", userId);
+    public void deleteUser(RequestIdDTO dto) {
+        logger.debug("Попытка удаления пользователя. UserID: {}",dto.getId() );
 
-        User user = userDAO.findById(userId)
+        User user = userDAO.findById(dto.getId())
                 .orElseThrow(() -> {
-                    logger.warn("Пользователь не найден при попытке удаления. UserID: {}", userId);
+                    logger.warn("Пользователь не найден при попытке удаления. UserID: {}", dto.getId());
                     return new EntityNotFoundException("User not found");
                 });
 
         if (!user.getRentals().isEmpty()) {
-            logger.warn("Попытка удаления пользователя с активными арендами. UserID: {}", userId);
+            logger.warn("Попытка удаления пользователя с активными арендами. UserID: {}", dto.getId());
             throw new IllegalStateException("Cannot delete user with active rentals");
         }
 
-        userDAO.delete(userId);
-        logger.info("Пользователь успешно удален. UserID: {}", userId);
+        userDAO.delete(dto.getId());
+        logger.info("Пользователь успешно удален. UserID: {}", dto.getId());
     }
 
     @Transactional(readOnly = true)
-    public User findUserById(int userId) {
-        logger.debug("Поиск пользователя по ID. UserID: {}", userId);
+    public UserDTO findUserById(RequestIdDTO dto) {
+        logger.debug("Поиск пользователя по ID. UserID: {}", dto.getId());
 
-        return userDAO.findById(userId)
+        return userMapper.toDto(userDAO.findById(dto.getId())
                 .orElseThrow(() -> {
-                    logger.warn("Пользователь не найден. UserID: {}", userId);
+                    logger.warn("Пользователь не найден.   UserID: {}", dto.getId());
                     return new EntityNotFoundException("User not found");
-                });
+                }));
     }
 
 

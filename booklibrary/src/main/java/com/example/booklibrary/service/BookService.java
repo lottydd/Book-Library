@@ -1,6 +1,7 @@
 package com.example.booklibrary.service;
 
 import com.example.booklibrary.dao.BookDAO;
+import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.book.*;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
 import com.example.booklibrary.mapper.BookMapper;
@@ -42,7 +43,7 @@ public class BookService {
         Book savedBook = bookDAO.save(book);
 
         logger.debug("Добавление {} копий книги", dto.getCopiesCount());
-        bookCopyService.addCopies(savedBook.getId(), dto.getCopiesCount());
+        bookCopyService.addCopiesByCountAndId(savedBook.getId(), dto.getCopiesCount());
         logger.info("Книга успешно создана. ID: {}", savedBook.getId());
         return bookMapper.toResponseDTO(savedBook);
     }
@@ -68,24 +69,24 @@ public class BookService {
     }
 
     @Transactional
-    public void deleteBook(int bookId) {
-        logger.debug("Попытка удаления Книги {}", bookId);
-        Book book = findBookByIdOrThrow(bookId);
+    public void deleteBook(RequestIdDTO dto) {
+        logger.debug("Попытка удаления Книги {}", dto.getId());
+        Book book = findBookByIdOrThrow(dto.getId());
         validateDeletion(book);
-        logger.debug("Удаление зависимостей Книги {}", bookId);
-        catalogService.removeBookFromAllCatalogs(bookId);
-        bookCopyService.deleteBookCopies(bookId);
-        bookDAO.delete(bookId);
-        logger.info("Книга {} успешно удалена ", bookId);
+        logger.debug("Удаление зависимостей Книги {}", dto.getId());
+        catalogService.removeBookFromAllCatalogs(dto.getId());
+        bookCopyService.deleteBookCopies(dto.getId());
+        bookDAO.delete(dto.getId());
+        logger.info("Книга {} успешно удалена ", dto.getId());
     }
 
     @Transactional(readOnly = true)
-    public BookDetailsDTO getBookDetails(int bookId) {
-        logger.debug("Попытка получения информации о Книге через ID: {}", bookId);
+    public BookDetailsDTO getBookDetails(RequestIdDTO dto) {
+        logger.debug("Попытка получения информации о Книге через ID: {}", dto.getId());
 
-        Book book = bookDAO.findByIdWithCopies(bookId)
+        Book book = bookDAO.findByIdWithCopies(dto.getId())
                 .orElseThrow(() -> {
-                    logger.warn("Книга не найдена по ID: {}", bookId);
+                    logger.warn("Книга не найдена по ID: {}", dto.getId());
                     return new EntityNotFoundException("Книга не найдена");
                 });
         return bookMapper.toDetailsDTO(book);
