@@ -38,7 +38,8 @@ public class RentalService {
     }
 
     @Transactional
-    public RentalDTO rentCopy(int userId, int copyId, LocalDateTime dueDate) {
+    public RentalDTO rentCopy(
+            int userId, int copyId, LocalDateTime dueDate) {
         logger.debug("Попытка аренды копии книги. UserID: {}, CopyID: {}", userId, copyId);
 
         User user = userDAO.findById(userId)
@@ -49,7 +50,7 @@ public class RentalService {
 
         BookCopy copy = bookCopyDAO.findById(copyId)
                 .orElseThrow(() -> {
-                    logger.warn("Копия книги не найдена. CopyID:  {}", copyId);
+                    logger.warn("Копия книги не найдена.  CopyID:  {}", copyId);
                     return new EntityNotFoundException("Book copy not found with id: " + copyId);
                 });
 
@@ -69,7 +70,6 @@ public class RentalService {
         Rental savedRental = rentalDAO.save(rental);
         logger.info("Аренда успешно создана. RentalID: {}, UserID: {}, CopyID: {}",
                 savedRental.getId(), userId, copyId);
-
         return rentalMapper.toDto(savedRental);
     }
 
@@ -102,7 +102,7 @@ public class RentalService {
 
         return rentalMapper.toDto(updatedRental);
     }
-
+//Может сделать чтобы просроченных за определенный период
     @Transactional(readOnly = true)
     public List<RentalDTO> findOverdueRentals() {
         logger.debug("Запрос просроченных аренд");
@@ -112,7 +112,7 @@ public class RentalService {
                 .map(rentalMapper::toDto)
                 .toList();
     }
-
+    //Оставить как админский метод?
     @Transactional
     public void markOverdueRentalsAsLate() {
         logger.debug("Пометка просроченных аренд как LATE");
@@ -126,7 +126,6 @@ public class RentalService {
     }
 
     @Transactional(readOnly = true)
-
     public List<RentalDTO> getUserRentalHistory(int userId) {
         logger.debug("Запрос истории аренд пользователя. UserID: {}", userId);
         List<Rental> rentals = rentalDAO.findByUserId(userId);
