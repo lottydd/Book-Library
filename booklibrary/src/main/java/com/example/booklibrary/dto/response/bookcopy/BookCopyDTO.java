@@ -10,7 +10,6 @@ import lombok.*;
 @Builder
 
 public class BookCopyDTO {
-    @NotNull
     private int copyId;
     private String status;
     private String bookTitle;

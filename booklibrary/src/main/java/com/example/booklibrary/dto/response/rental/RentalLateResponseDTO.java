@@ -16,19 +16,14 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RentalLateResponseDTO {
-    @Min(1)
     private int rentalId;
 
-    @Min(1)
     private int userId;
 
-    @NotBlank
     private String bookTitle;
 
-    @NotNull
     private LocalDateTime dueDate;
 
-    @NotNull
     private LocalDateTime returnDate;
 
     private long daysLate;

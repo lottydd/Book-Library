@@ -14,26 +14,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RentalDTO {
-    @Min(1)
     private int rentalId;
 
-    @Min(1)
     private int userId;
 
-    @Min(1)
     private int copyId;
 
-    @NotBlank
     private String bookTitle;
 
-    @NotNull
     private LocalDateTime startDate;
 
-    @NotNull
     private LocalDateTime dueDate;
 
     private LocalDateTime returnDate;
 
-    @NotBlank
     private String status;
 }
