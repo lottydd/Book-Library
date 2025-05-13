@@ -11,6 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RequestIdDTO {
+
     @NotNull
     private Integer id;
 }

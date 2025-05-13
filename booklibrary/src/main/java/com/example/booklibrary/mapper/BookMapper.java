@@ -20,13 +20,6 @@ public interface BookMapper {
     @Mapping(target = "bookCatalogs", ignore = true)
     Book toEntity(BookCreateDTO dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "isbn", ignore = true)
-    @Mapping(target = "copies", ignore = true)
-    @Mapping(target = "bookCatalogs", ignore = true)
-    @Mapping(target = "storageArrivalDate", ignore = true)
-    void updateFromDto(BookUpdateDTO dto, @MappingTarget Book book);
-
     @Mapping(target = "availableCopies", ignore = true)
     @Mapping(target = "rentedCopies", ignore = true)
     @Mapping(target = "catalogs", ignore = true)

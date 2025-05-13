@@ -1,16 +1,14 @@
 package com.example.booklibrary.dto.response.user;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
+
+@Setter
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserDTO {
     private Integer id;
     private String username;

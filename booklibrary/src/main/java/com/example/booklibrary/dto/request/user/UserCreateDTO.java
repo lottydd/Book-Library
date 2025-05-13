@@ -3,23 +3,21 @@ package com.example.booklibrary.dto.request.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserCreateDTO {
 
-    @NotBlank(message = "Username cannot be empty")
+    @NotBlank(message = "Username не может быть пустым")
     private String username;
 
-    @NotBlank(message = "Email cannot be empty")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email не может быть пустым")
+    @Email(message = "Некорректный формат почты ")
     private String email;
 
-    @NotBlank(message = "Password cannot be empty")
+    @NotBlank(message = "Password не может быть пустым")
     private String password;
 }

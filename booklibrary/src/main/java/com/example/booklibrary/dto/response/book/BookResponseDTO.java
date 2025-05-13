@@ -1,10 +1,13 @@
 package com.example.booklibrary.dto.response.book;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class BookResponseDTO {
     private int id;
     private String author;

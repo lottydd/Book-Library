@@ -1,16 +1,15 @@
 package com.example.booklibrary.dto.response.rental;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+
 @Builder
-@NoArgsConstructor
+@Setter
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class RentalUserHistoryResponseDTO {
     private Integer rentalId;
     private String bookTitle;

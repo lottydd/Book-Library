@@ -1,9 +1,13 @@
 package com.example.booklibrary.dto.response.catalog;
 
-import lombok.Data;
+import lombok.*;
+
 import java.util.List;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CatalogTreeDTO  {
     private Integer id;
     private String name;

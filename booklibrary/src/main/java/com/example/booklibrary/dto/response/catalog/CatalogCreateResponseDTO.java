@@ -1,8 +1,11 @@
 package com.example.booklibrary.dto.response.catalog;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CatalogCreateResponseDTO {
     private Integer id;
     private String name;

@@ -31,20 +31,10 @@ public interface CatalogMapper {
     @Mapping(target = "children", source = "children")
     CatalogTreeDTO toTreeDto(Catalog catalog);
 
-    default List<CatalogTreeDTO> mapChildren(List<Catalog> children) {
-        if (children == null) return Collections.emptyList();
-        return children.stream()
-                .map(this::toTreeDto)
-                .toList();
-    }
-
     default List<CatalogTreeDTO> toTreeDtoList(List<Catalog> catalogs) {
         return catalogs.stream()
                 .map(this::toTreeDto)
                 .collect(Collectors.toList());
     }
 
-    @Mapping(target = "name", source = "name")
-    @Mapping(target = "parent", ignore = true)
-    Catalog toEntity(CatalogCreateDTO dto);
 }

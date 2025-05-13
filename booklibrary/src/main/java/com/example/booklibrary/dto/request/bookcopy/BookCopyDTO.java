@@ -1,9 +1,11 @@
 package com.example.booklibrary.dto.request.bookcopy;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 
 public class BookCopyDTO {

@@ -1,9 +1,15 @@
 package com.example.booklibrary.dto.request.bookcopy;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class BookAddCopyDTO {
+
+    @NotBlank
     private int bookId;
     private int count;
 

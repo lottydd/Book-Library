@@ -1,12 +1,19 @@
 package com.example.booklibrary.dto.request.rental;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class RentalCopyDTO {
+
+
     private int userId;
+
     private int copyId;
+
     private LocalDateTime dueDate;
 }

@@ -6,7 +6,6 @@ import com.example.booklibrary.dao.UserDAO;
 import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.rental.RentalCopyDTO;
 import com.example.booklibrary.dto.response.rental.RentalDTO;
-import com.example.booklibrary.dto.response.rental.RentalCopyResponseDTO;
 import com.example.booklibrary.dto.response.rental.RentalCopyStoryResponseDTO;
 import com.example.booklibrary.dto.response.rental.RentalLateResponseDTO;
 import com.example.booklibrary.dto.response.rental.RentalUserHistoryResponseDTO;
@@ -129,15 +128,12 @@ public class RentalService {
         logger.info("Помечено {} аренд как LATE", overdueRentals.size());
     }
 
-
     @Transactional(readOnly = true)
     public List<RentalUserHistoryResponseDTO> getUserRentalHistory(int userId) {
         logger.debug("Запрос истории аренд пользователя. UserID: {}", userId);
         List<Rental> rentals = rentalDAO.findByUserId(userId);
         logger.info("Найдено {} аренд для пользователя UserID: {}", rentals.size(), userId);
-        return rentals.stream()
-                .map(rentalMapper::toUserHistoryDto)
-                .toList();
+        return rentalMapper.toUserHistoryDtoList(rentals);
     }
 
     @Transactional(readOnly = true)
@@ -145,9 +141,7 @@ public class RentalService {
         logger.debug("Запрос истории аренд копии книги. CopyID: {}", copyId);
         List<Rental> rentals = rentalDAO.findByCopyId(copyId);
         logger.info("Найдено {} аренд для копии CopyID: {}", rentals.size(), copyId);
-        return rentals.stream()
-                .map(rentalMapper::toCopyStoryDto)
-                .toList();
+        return  rentalMapper.toCopyStoryDtoList(rentals);
     }
 
     private void validateCopyAvailableForRent(BookCopy copy) {
