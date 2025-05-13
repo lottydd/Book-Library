@@ -2,13 +2,11 @@ package com.example.booklibrary.mapper;
 
 
 import com.example.booklibrary.dto.request.book.BookCreateDTO;
-import com.example.booklibrary.dto.request.book.BookDetailsDTO;
+import com.example.booklibrary.dto.response.book.BookDetailsDTO;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
-import com.example.booklibrary.dto.request.book.BookUpdateDTO;
 import com.example.booklibrary.model.Book;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring",
         uses = {BookCopyMapper.class, CatalogMapper.class})

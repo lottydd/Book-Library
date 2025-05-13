@@ -3,6 +3,7 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookDAO;
 import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.book.*;
+import com.example.booklibrary.dto.response.book.BookDetailsDTO;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
 import com.example.booklibrary.mapper.BookMapper;
 import com.example.booklibrary.model.Book;

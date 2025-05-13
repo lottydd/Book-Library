@@ -2,6 +2,8 @@ package com.example.booklibrary.dto.request.catalog;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Setter
@@ -10,10 +12,11 @@ import lombok.*;
 @NoArgsConstructor
 public class CatalogCreateDTO {
 
-    @NotBlank
+    @NotBlank(message = "Имя каталога не может быть пустым")
     private String name;
 
-    @Nullable
+    @NotNull(message = "ID копии обязательно")
+    @Positive(message = "ID копии должен быть положительным числом")
     private Integer parentId;
 
 }

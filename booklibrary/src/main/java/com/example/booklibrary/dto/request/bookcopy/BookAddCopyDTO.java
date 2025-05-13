@@ -1,6 +1,9 @@
 package com.example.booklibrary.dto.request.bookcopy;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Setter
@@ -9,8 +12,11 @@ import lombok.*;
 @NoArgsConstructor
 public class BookAddCopyDTO {
 
-    @NotBlank
-    private int bookId;
-    private int count;
+    @NotNull( message = "ID обновляемой копии не может быть равен нулю")
+    private Integer bookId;
+
+    @NotNull( message = "Количество добавляемых копий не может быть равно нулю")
+    @Positive(message = "Количество добавляемых копий должно быть положительным")
+    private Integer count;
 
 }

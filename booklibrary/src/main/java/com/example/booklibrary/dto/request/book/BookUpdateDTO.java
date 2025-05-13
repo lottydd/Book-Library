@@ -1,29 +1,30 @@
 package com.example.booklibrary.dto.request.book;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.List;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookUpdateDTO {
-    @NotBlank(message = "Author is required")
+    @NotBlank(message = "Автор книги обязателен")
     private String author;
 
-    @NotBlank(message = "Title is required")
+    @NotBlank(message = "Название книги обязательно")
     private String bookTitle;
 
-    @NotBlank(message = "ISBN is required")
+    @NotBlank(message = "ISBN обязателен")
     private String isbn;
 
-    @Min(value = 1000, message = "Publication year must be at least 1000")
+    @Min(value = 1000)
+    @Max(value = 2025, message = "Год издания не может быть в будущем")
     private int publicationYear;
 
-    @NotBlank(message = "Desc is required")
+    @NotBlank(message = "Описание книги обязательно")
     private String description;
 }

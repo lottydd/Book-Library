@@ -1,8 +1,6 @@
 package com.example.booklibrary.controller;
 
-import com.example.booklibrary.dto.request.bookcopy.BookCopyDTO;
 import com.example.booklibrary.service.BookCopyService;
-import com.example.booklibrary.util.CopyStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

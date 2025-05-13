@@ -1,7 +1,7 @@
 package com.example.booklibrary.controller;
 
 import com.example.booklibrary.dto.request.book.BookCreateDTO;
-import com.example.booklibrary.dto.request.book.BookDetailsDTO;
+import com.example.booklibrary.dto.response.book.BookDetailsDTO;
 import com.example.booklibrary.dto.request.book.BookUpdateDTO;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
 import com.example.booklibrary.service.BookService;

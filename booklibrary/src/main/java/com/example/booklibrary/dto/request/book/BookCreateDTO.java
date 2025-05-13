@@ -1,5 +1,6 @@
 package com.example.booklibrary.dto.request.book;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,25 +14,26 @@ import java.util.List;
 @NoArgsConstructor
 public class BookCreateDTO {
     
-        @NotBlank(message = "Author is required")
+        @NotBlank(message = "Автор книги обязателен")
         private String author;
 
-        @NotBlank(message = "Title is required")
+        @NotBlank(message = "Название книги обязательно")
         private String bookTitle;
 
-        @NotBlank(message = "Invalid ISBN format")
+        @NotBlank(message = "Некорректный формат ISBN ")
         private String isbn;
 
         @Min(1000)
+        @Max(value = 2025, message = "Год издания не может быть в будущем")
         private int publicationYear;
-        @NotBlank
+        @NotBlank(message = "Описание книги обязательно")
         private String description;
 
-        @NotNull(message = "Copies count is required")
-        @Min(value = 1, message = "At least 1 copy required")
+        @NotNull(message = "Количество копий обязательно")
+        @Min(value = 1, message = "При добавлении книги должна быть минимум 1 копия")
         private Integer copiesCount;
 
-        @NotNull(message = "Catalog IDs list cannot be null (use empty list for no catalogs)")
+        @NotNull(message = "Список ID каталогов не может быть null (используйте пустой список, если книга еще не содержится в каталогах)")
         private List<Integer> catalogIds = new ArrayList<>();;
     }
 

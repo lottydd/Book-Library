@@ -1,5 +1,6 @@
-package com.example.booklibrary.dto.request.bookcopy;
+package com.example.booklibrary.dto.response.bookcopy;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Setter
@@ -9,6 +10,7 @@ import lombok.*;
 @Builder
 
 public class BookCopyDTO {
+    @NotNull
     private int copyId;
     private String status;
     private String bookTitle;

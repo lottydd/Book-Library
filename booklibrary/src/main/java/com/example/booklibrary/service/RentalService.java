@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -57,6 +58,7 @@ public class RentalService {
                     return new EntityNotFoundException("Book copy not found with id: " + dto.getCopyId());
                 });
 
+        validateRentTime(dto.getDueDate());
         validateCopyAvailableForRent(copy);
         copy.setStatus(CopyStatus.RENTED);
         bookCopyDAO.update(copy);
@@ -141,7 +143,7 @@ public class RentalService {
         logger.debug("Запрос истории аренд копии книги. CopyID: {}", copyId);
         List<Rental> rentals = rentalDAO.findByCopyId(copyId);
         logger.info("Найдено {} аренд для копии CopyID: {}", rentals.size(), copyId);
-        return  rentalMapper.toCopyStoryDtoList(rentals);
+        return rentalMapper.toCopyStoryDtoList(rentals);
     }
 
     private void validateCopyAvailableForRent(BookCopy copy) {
@@ -152,6 +154,18 @@ public class RentalService {
             throw new IllegalStateException(
                     "Copy with id " + copy.getCopyId() + " is not available. Current status: " + copy.getStatus()
             );
+        }
+    }
+
+    private void validateRentTime(LocalDateTime dueTime) {
+        LocalDateTime now = LocalDateTime.now();
+        long days = ChronoUnit.DAYS.between(now, dueTime);
+
+        if (days < 7) {
+            throw new IllegalArgumentException("Минимальный срок аренды - 1 неделя");
+        }
+        if (days > 365) {
+            throw new IllegalArgumentException("Максимальный срок аренды - 1 год");
         }
     }
 }

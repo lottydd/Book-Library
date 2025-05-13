@@ -3,7 +3,7 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.BookDAO;
 import com.example.booklibrary.dto.request.bookcopy.BookAddCopyDTO;
-import com.example.booklibrary.dto.request.bookcopy.BookCopyDTO;
+import com.example.booklibrary.dto.response.bookcopy.BookCopyDTO;
 import com.example.booklibrary.dto.request.bookcopy.BookCopyUpdateDTO;
 import com.example.booklibrary.mapper.BookCopyMapper;
 import com.example.booklibrary.model.Book;
