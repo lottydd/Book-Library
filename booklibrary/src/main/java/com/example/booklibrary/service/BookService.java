@@ -76,7 +76,7 @@ public class BookService {
         validateDeletion(book);
         logger.debug("Удаление зависимостей Книги {}", dto.getId());
         catalogService.removeBookFromAllCatalogs(dto.getId());
-        bookCopyService.deleteBookCopies(dto.getId());
+        bookCopyService.deleteBookCopies(dto);
         bookDAO.delete(dto.getId());
         logger.info("Книга {} успешно удалена ", dto.getId());
     }

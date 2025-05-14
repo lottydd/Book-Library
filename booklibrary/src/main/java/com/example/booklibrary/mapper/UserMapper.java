@@ -18,11 +18,13 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "rentals", ignore = true)
     User toEntity(UserCreateDTO dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
-    @Mapping(target = "roles", source = "roles")
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "rentals", ignore = true)
     void updateFromDto(UserUpdateDTO dto, @MappingTarget User user);
 
     @Mapping(target = "roles", source = "roles", qualifiedByName = "mapRolesToStrings")

@@ -1,5 +1,6 @@
 package com.example.booklibrary.controller;
 
+import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.book.BookCreateDTO;
 import com.example.booklibrary.dto.response.book.BookDetailsDTO;
 import com.example.booklibrary.dto.request.book.BookUpdateDTO;
@@ -22,24 +23,27 @@ public class BookController {
 
 
     @PostMapping
-    public ResponseEntity<BookResponseDTO> addBook(@RequestBody @Valid BookCreateDTO dto) {
-        return new ResponseEntity<>(bookService.createBook(dto), HttpStatus.CREATED);
+    public ResponseEntity<BookResponseDTO> createBook(@Valid @RequestBody BookCreateDTO bookCreateDTO) {
+        BookResponseDTO response = bookService.createBook(bookCreateDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping
-    public ResponseEntity<BookResponseDTO> updateBook(@RequestBody @Valid BookUpdateDTO dto) {
-        return ResponseEntity.ok(bookService.updateBook(dto));
+    public ResponseEntity<BookResponseDTO> updateBook(@Valid @RequestBody BookUpdateDTO bookUpdateDTO) {
+        BookResponseDTO response = bookService.updateBook(bookUpdateDTO);
+        return ResponseEntity.ok(response);
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<BookDetailsDTO> getBookDetails(@PathVariable int id) {
-        return ResponseEntity.ok(bookService.getBookDetails(id));
-    }
-
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable int id) {
-        bookService.deleteBook(id);
+        bookService.deleteBook(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BookDetailsDTO> getBookDetails(@PathVariable int id) {
+        BookDetailsDTO response = bookService.getBookDetails(new RequestIdDTO(id));
+        return ResponseEntity.ok(response);
+    }
+
 }

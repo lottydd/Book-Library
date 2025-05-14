@@ -1,4 +1,4 @@
-package com.example.booklibrary.client;
+package com.example.booklibrary;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

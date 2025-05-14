@@ -23,7 +23,4 @@ public class UserUpdateDTO {
     @NotBlank(message = "Email  не может быть пустым")
     @Email
     private String email;
-    @NotBlank(message = "Password не может быть пустым")
-    private String password;
-
 }

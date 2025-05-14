@@ -16,6 +16,7 @@ import com.example.booklibrary.model.Catalog;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class CatalogService {
 
     private static final Logger logger = LoggerFactory.getLogger(CatalogService.class);
 
+    @Autowired
     public CatalogService(CatalogDAO catalogDAO, BookDAO bookDAO, BookCatalogDAO bookCatalogDAO, CatalogMapper catalogMapper) {
         this.catalogDAO = catalogDAO;
         this.bookDAO = bookDAO;

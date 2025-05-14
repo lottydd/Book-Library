@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface BookCopyMapper {
 
-    @Mapping(target = "status", source = "status.name")
+    @Mapping(target = "status",expression = "java(copy.getStatus().name())")
     @Mapping(target = "bookTitle", source = "book.bookTitle")
     BookCopyDTO toDto(BookCopy copy);
 

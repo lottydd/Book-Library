@@ -2,6 +2,7 @@ package com.example.booklibrary.service;
 
 import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.BookDAO;
+import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.bookcopy.BookAddCopyDTO;
 import com.example.booklibrary.dto.response.bookcopy.BookCopyDTO;
 import com.example.booklibrary.dto.request.bookcopy.BookCopyUpdateDTO;
@@ -98,13 +99,13 @@ public class BookCopyService {
     }
 
     @Transactional
-    public void deleteBookCopies(int bookId) {
-        bookCopyDAO.deleteByBookId(bookId);
+    public void deleteBookCopies(RequestIdDTO dto) {
+        bookCopyDAO.deleteByBookId(dto.getId());
     }
 
     @Transactional
-    public boolean hasRentedCopies(int bookId) {
-        return bookCopyDAO.existsByBookIdAndStatus(bookId, CopyStatus.RENTED);
+    public boolean hasRentedCopies(RequestIdDTO dto) {
+        return bookCopyDAO.existsByBookIdAndStatus(dto.getId(), CopyStatus.RENTED);
     }
 
     private BookCopy getCopyById(int copyId) {
