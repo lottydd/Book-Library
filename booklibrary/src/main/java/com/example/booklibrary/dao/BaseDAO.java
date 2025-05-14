@@ -86,4 +86,13 @@ public abstract class BaseDAO<T, ID> implements GenericDAO<T, ID> {
         entities.forEach(entityManager::persist);
         logger.info("Сохранено {} сущностей {}", entities.size(), entityClass.getSimpleName());
     }
+    @Transactional
+    @Override
+    public void flush() {
+        logger.debug("Вызов flush() для сущности {}", entityClass.getSimpleName());
+        entityManager.flush();
+        logger.debug("Синхронизация с БД выполнена");
+    }
+
+
 }

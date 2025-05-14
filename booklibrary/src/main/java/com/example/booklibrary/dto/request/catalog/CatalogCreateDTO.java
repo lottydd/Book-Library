@@ -15,7 +15,7 @@ public class CatalogCreateDTO {
     @NotBlank(message = "Имя каталога не может быть пустым")
     private String name;
 
-    @NotNull(message = "ID копии обязательно")
+    @Nullable
     @Positive(message = "ID копии должен быть положительным числом")
     private Integer parentId;
 

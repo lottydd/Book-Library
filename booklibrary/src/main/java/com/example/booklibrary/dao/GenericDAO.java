@@ -17,4 +17,6 @@ public interface GenericDAO<T, ID> {
     void delete(ID id);
 
     void saveAll(List<T> entities);
+
+    void flush();
 }
