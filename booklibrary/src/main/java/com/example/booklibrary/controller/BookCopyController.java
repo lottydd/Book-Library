@@ -27,7 +27,7 @@ public class BookCopyController {
     }
 
     @DeleteMapping("/book/{bookId}")
-    public ResponseEntity<Void> deleteBookCopies(@PathVariable int bookId) {
+    public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));
         return ResponseEntity.noContent().build();
     }
@@ -40,7 +40,7 @@ public class BookCopyController {
     }
 
     @GetMapping("/has-rented/{bookId}")
-    public ResponseEntity<Boolean> hasRentedCopies(@PathVariable int bookId) {
+    public ResponseEntity<Boolean> hasRentedCopies(@PathVariable Integer bookId) {
         boolean hasRented = bookCopyService.hasRentedCopies(new RequestIdDTO(bookId));
         return ResponseEntity.ok(hasRented);
     }

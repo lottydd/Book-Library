@@ -37,7 +37,7 @@ public class RentalController {
     }
 
     @PutMapping("/{copyId}/return")
-    public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable int copyId) {
+    public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable Integer copyId) {
         RentalDTO rentalDTO = rentalService.returnCopy(new RequestIdDTO(copyId));
         return ResponseEntity.ok(rentalDTO);
     }

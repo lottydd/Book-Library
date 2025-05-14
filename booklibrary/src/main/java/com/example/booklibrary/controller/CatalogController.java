@@ -48,13 +48,13 @@ public class CatalogController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCatalog(@PathVariable int id) {
+    public ResponseEntity<Void> deleteCatalog(@PathVariable Integer id) {
         catalogService.deleteCatalog(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/books/{bookId}")
-    public ResponseEntity<Void> removeBookFromAllCatalogs(@PathVariable int bookId) {
+    public ResponseEntity<Void> removeBookFromAllCatalogs(@PathVariable Integer bookId) {
         catalogService.removeBookFromAllCatalogs(bookId);
         return ResponseEntity.noContent().build();
     }
