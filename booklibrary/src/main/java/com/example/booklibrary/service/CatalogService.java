@@ -3,10 +3,19 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookCatalogDAO;
 import com.example.booklibrary.dao.BookDAO;
 import com.example.booklibrary.dao.CatalogDAO;
+import com.example.booklibrary.dto.request.RequestIdDTO;
+import com.example.booklibrary.dto.request.catalog.CatalogAddBookDTO;
+import com.example.booklibrary.dto.request.catalog.CatalogCreateDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogAddBookResponseDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogCreateResponseDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogTreeDTO;
+import com.example.booklibrary.mapper.CatalogMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
 import com.example.booklibrary.model.Catalog;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,62 +24,99 @@ import java.util.List;
 
 @Service
 public class CatalogService {
-    private CatalogDAO catalogDAO;
-    private BookDAO bookDAO;
-    private BookCatalogDAO bookCatalogDAO;
+    private final CatalogDAO catalogDAO;
+    private final BookDAO bookDAO;
+    private final BookCatalogDAO bookCatalogDAO;
+    private final CatalogMapper catalogMapper;
 
-    public CatalogService(CatalogDAO catalogDAO, BookDAO bookDAO, BookCatalogDAO bookCatalogDAO) {
+    private static final Logger logger = LoggerFactory.getLogger(CatalogService.class);
+
+    public CatalogService(CatalogDAO catalogDAO, BookDAO bookDAO, BookCatalogDAO bookCatalogDAO, CatalogMapper catalogMapper) {
         this.catalogDAO = catalogDAO;
         this.bookDAO = bookDAO;
         this.bookCatalogDAO = bookCatalogDAO;
+        this.catalogMapper = catalogMapper;
     }
 
     @Transactional
-    public void addBookToCatalogs(int bookId, List<Integer> catalogIds) {
-        if (!bookDAO.existsById(bookId)) {
-            throw new EntityNotFoundException("Book not found");
-        }
-        catalogIds.forEach(catalogId -> addBookToCatalog(bookId, catalogId));
-    }
-
-    @Transactional
-
-    public void updateCatalogs(int bookId, List<Integer> catalogIds) {
-        removeBookFromAllCatalogs(bookId);
-        addBookToCatalogs(bookId, catalogIds);
-    }
-
-    @Transactional
-
-    public void removeBookFromAllCatalogs(int bookId) {
-        Book book = bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
-
-        List<BookCatalog> bookCatalogs = bookCatalogDAO.findByBookId(bookId);
-        bookCatalogDAO.deleteAll(bookCatalogs);
-    }
-
-    @Transactional
-
-    public void createCatalog(String name, Integer parentId) {
+    public CatalogCreateResponseDTO createCatalog(CatalogCreateDTO dto) {
+        logger.debug("Попытка создания каталога");
         Catalog catalog = new Catalog();
-        catalog.setName(name);
-        if (parentId != null) {
-            Catalog parent = catalogDAO.findById(parentId)
-                    .orElseThrow(() -> new EntityNotFoundException("Parent catalog not found"));
-            catalog.setParent(parent);
+        catalog.setName(dto.getName());
+
+        if (dto.getParentId() != null) {
+            Catalog parent = catalogDAO.findById(dto.getParentId())
+                    .orElseThrow(() -> {
+                        logger.warn("Родительский каталог не найден по ID: {}", dto.getParentId());
+                        return new EntityNotFoundException("Parent catalog not found");
+                    });
             parent.getChildren().add(catalog);
             catalogDAO.update(parent);
         }
-        catalogDAO.save(catalog);
+
+        Catalog savedCatalog = catalogDAO.save(catalog);
+        logger.info("Каталог успешно создан. ID: {}", savedCatalog.getId());
+        return catalogMapper.toCatalogCreateResponseDTO(savedCatalog);
+    }
+
+    @Transactional
+    public CatalogAddBookResponseDTO addBookToCatalog(CatalogAddBookDTO dto) {
+        logger.debug("Добавление книги ID {} в каталог ID {}", dto.getBookId(), dto.getCatalogId());
+        Book book = bookDAO.findById(dto.getBookId())
+                .orElseThrow(() -> {
+                    logger.warn("Книга не найдена по ID: {}", dto.getBookId());
+                    return new EntityNotFoundException("Книга не найдена");
+                });
+        Catalog catalog = catalogDAO.findById(dto.getCatalogId())
+                .orElseThrow(() -> {
+                    logger.warn("Каталог не найден по ID: {}", dto.getCatalogId());
+                    return new EntityNotFoundException("Каталог не найден");
+                });
+        if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {
+            logger.warn("Книга уже находится в каталоге. Book ID: {}, Catalog ID: {}", dto.getBookId(), dto.getCatalogId());
+            throw new IllegalStateException("Книга уже находится в каталоге");
+        }
+
+        BookCatalog bookCatalog = new BookCatalog();
+        bookCatalog.setBook(book);
+        bookCatalog.setCatalog(catalog);
+
+        BookCatalog savedBookCatalog = bookCatalogDAO.save(bookCatalog);
+        logger.info("Книга успешно добавлена в каталог. Book ID: {}, Catalog ID: {}", dto.getBookId(), dto.getCatalogId());
+        return catalogMapper.toCatalogAddBookResponseDTO(savedBookCatalog);
+    }
 
 
+    @Transactional
+    public void removeBookFromAllCatalogs(int bookId) {
+        logger.debug("Удаление книги ID {} из всех каталогов", bookId);
+
+        if (!bookDAO.existsById(bookId)) {
+            logger.warn("Книга с ID  {} не найдена", bookId);
+            throw new EntityNotFoundException("Book not found");
+        }
+        int deletedCount = bookCatalogDAO.deleteByBookId(bookId);
+        logger.info("Удалено {} связей книги с каталогами", deletedCount);
+    }
+
+    @Transactional
+    public void deleteCatalog(RequestIdDTO dto) {
+        logger.debug("Попытка удаления каталога ID {}", dto.getId());
+        Catalog catalog = catalogDAO.findById(dto.getId())
+                .orElseThrow(() -> {
+                    logger.warn("Каталог не найден по ID: {}", dto.getId());
+                    return new EntityNotFoundException("Catalog not found");
+                });
+        deleteCatalogRecursive(catalog);
+        logger.info("Каталог ID {} успешно удален", dto.getId());
     }
 
     @Transactional(readOnly = true)
-    public List<Catalog> getCatalogTree() {
+    public List<CatalogTreeDTO> getCatalogTree() {
+        logger.debug("Получение дерева каталогов");
         List<Catalog> rootCatalogs = catalogDAO.findRootCatalogs();
-        return fetchChildrenRecursively(rootCatalogs);
+        List<Catalog> fullTree = fetchChildrenRecursively(rootCatalogs);
+        return catalogMapper.toTreeDtoList(fullTree);
     }
 
     @Transactional
@@ -82,18 +128,9 @@ public class CatalogService {
         return catalogs;
     }
 
-
     @Transactional
-
-    public void deleteCatalog(int catalogId) {
-        Catalog catalog = catalogDAO.findById(catalogId)
-                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
-        deleteCatalogRecursive(catalog);
-    }
-
-    @Transactional
-
     private void deleteCatalogRecursive(Catalog catalog) {
+        logger.debug("Рекурсивное удаление каталога ID {}", catalog.getId());
         if (!catalog.getBookCatalogs().isEmpty()) {
             bookCatalogDAO.deleteAll(catalog.getBookCatalogs());
         }
@@ -111,23 +148,5 @@ public class CatalogService {
         }
     }
 
-
-    @Transactional
-
-    public void addBookToCatalog(int bookId, int catalogId) {
-        Book book = bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
-        Catalog catalog = catalogDAO.findById(catalogId)
-                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
-
-        if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {
-            throw new IllegalStateException("Book is already in the catalog");
-        }
-
-        BookCatalog bookCatalog = new BookCatalog();
-        bookCatalog.setBook(book);
-        bookCatalog.setCatalog(catalog);
-        bookCatalogDAO.save(bookCatalog);
-    }
 
 }

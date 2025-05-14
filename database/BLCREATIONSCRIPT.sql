@@ -1,0 +1,61 @@
+-- ENUM типы
+CREATE TYPE rental_status AS ENUM ('RENTED', 'RETURNED', 'LATE');
+CREATE TYPE copy_status AS ENUM ('AVAILABLE', 'DAMAGED', 'LOST', 'RENTED');
+
+-- Таблица Roles
+CREATE TABLE Roles (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    roleName VARCHAR(255) NOT NULL
+);
+
+-- Таблица Users
+CREATE TABLE Users (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    roleId INT REFERENCES Roles(id) ON DELETE SET NULL,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Таблица Book
+CREATE TABLE Book (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    author VARCHAR(255) NOT NULL,
+    bookTitle VARCHAR(255) NOT NULL,
+    isbn VARCHAR(255) UNIQUE NOT NULL,
+    publicationYear INT NOT NULL,
+    description TEXT,
+    storageArrivalDate TIMESTAMP
+);
+
+-- Таблица BookCopies
+CREATE TABLE BookCopies (
+    copy_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    book_id INT REFERENCES Book(id) ON DELETE CASCADE,
+    status copy_status
+);
+
+-- Таблица Rental
+CREATE TABLE Rental (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT REFERENCES Users(id) ON DELETE CASCADE,
+    copy_id INT REFERENCES BookCopies(copy_id) ON DELETE CASCADE,
+    start_date TIMESTAMP,
+    due_date TIMESTAMP,
+    return_date TIMESTAMP,
+    status rental_status
+);
+
+-- Таблица Catalogs
+CREATE TABLE Catalogs (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    parent_id INT REFERENCES Catalogs(id) ON DELETE SET NULL
+);
+
+-- Таблица BookCatalogs (многие-ко-многим между Book и Catalogs)
+CREATE TABLE BookCatalogs (
+    bookId INT REFERENCES Book(id) ON DELETE CASCADE,
+    catalog_id INT REFERENCES Catalogs(id) ON DELETE CASCADE,
+    PRIMARY KEY (bookId, catalog_id)
+);

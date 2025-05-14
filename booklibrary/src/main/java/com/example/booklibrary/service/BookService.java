@@ -1,132 +1,108 @@
 package com.example.booklibrary.service;
 
-import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.BookDAO;
+import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.book.*;
-import com.example.booklibrary.dto.request.bookcopy.BookCopyDTO;
+import com.example.booklibrary.dto.response.book.BookDetailsDTO;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
-import com.example.booklibrary.mapper.BookCopyMapper;
 import com.example.booklibrary.mapper.BookMapper;
 import com.example.booklibrary.model.Book;
-import com.example.booklibrary.model.BookCopy;
 import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class BookService {
 
-    @Autowired
     private BookDAO bookDAO;
-
-    private final BookCopyDAO bookCopyDAO;
     private final CatalogService catalogService;
     private final BookMapper bookMapper;
-    private final BookCopyMapper bookCopyMapper;
     private final BookCopyService bookCopyService;
 
+    private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
-    public BookService(BookCopyDAO bookCopyDAO, CatalogService catalogService, BookMapper bookMapper, BookCopyMapper bookCopyMapper, BookCopyService bookCopyService) {
-        this.bookCopyDAO = bookCopyDAO;
+    public BookService(CatalogService catalogService, BookMapper bookMapper, BookCopyService bookCopyService) {
         this.catalogService = catalogService;
         this.bookMapper = bookMapper;
-        this.bookCopyMapper = bookCopyMapper;
         this.bookCopyService = bookCopyService;
     }
 
     @Transactional
-    public BookResponseDTO addOrUpdateBook(BookAddDTO dto) {
-        Book book = bookDAO.findByIsbn(dto.getIsbn())
-                .orElseGet(() -> {
-                    Book newBook = bookMapper.toEntity(dto);
-                    newBook.setStorageArrivalDate(LocalDateTime.now());
-                    return bookDAO.save(newBook);
-                });
-
-        bookCopyService.addCopies(book.getId(), dto.getCopiesCount());
-        catalogService.updateCatalogs(book.getId(), dto.getCatalogIds());
-
-        return bookMapper.toResponseDTO(book);
-    }
-
-    @Transactional
-    public BookResponseDTO updateBook(int bookId, BookUpdateDTO dto) {
-        Book book = bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
-        bookMapper.updateFromDto(dto, book);
-        return bookMapper.toResponseDTO(bookDAO.save(book));
-    }
-
-    @Transactional
-    public void deleteBook(int bookId) {
-        Book book = bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
-        validateDeletion(book);
-        deleteDependencies(book);
-        bookDAO.delete(bookId);
-    }
-
-    @Transactional(readOnly = true)
-    public BookDetailsDTO getBookDetails(int bookId) {
-        Book book = bookDAO.findByIdWithCopies(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
-        return bookMapper.toDetailsDTO(book);
-    }
-
-    @Transactional
-    private BookResponseDTO createNewBook(BookAddDTO dto) {
+    public BookResponseDTO createBook(BookCreateDTO dto) {
+        logger.debug("Попытка создания книги");
+        if (bookDAO.findByIsbn(dto.getIsbn()).isPresent()) {
+            logger.warn("Книга с таким ISBN уже существует");
+            throw new IllegalStateException("Книга с таким ISBN уже существует");
+        }
         Book book = bookMapper.toEntity(dto);
         book.setStorageArrivalDate(LocalDateTime.now());
         Book savedBook = bookDAO.save(book);
-        bookCopyService.addCopies(savedBook.getId(), dto.getCopiesCount());
-        catalogService.addBookToCatalogs(savedBook.getId(), dto.getCatalogIds());
+
+        logger.debug("Добавление {} копий книги", dto.getCopiesCount());
+        bookCopyService.addCopiesByCountAndId(savedBook.getId(), dto.getCopiesCount());
+        logger.info("Книга успешно создана. ID: {}", savedBook.getId());
         return bookMapper.toResponseDTO(savedBook);
     }
 
-    private BookResponseDTO updateExistingBook(Book book, BookAddDTO dto) {
-        bookCopyService.addCopies(book.getId(), dto.getCopiesCount());
-        catalogService.updateCatalogs(book.getId(), dto.getCatalogIds());
-        return bookMapper.toResponseDTO(book);
-    }
+    @Transactional
+    public BookResponseDTO updateBook(BookUpdateDTO dto) {
+        logger.debug("Обновление книги по ISBN: {}", dto.getIsbn());
+        Book book = bookDAO.findByIsbn(dto.getIsbn())
+                .orElseThrow(() -> {
+                    logger.warn("Книга не найдена по ISBN: {}", dto.getIsbn());
+                    return new EntityNotFoundException("Книга не найдена");
+                });
 
-    private BookCopy createNewCopy(Book book) {
-        return BookCopy.builder()
-                .book(book)
-                .status(CopyStatus.AVAILABLE)
-                .build();
+        book.setAuthor(dto.getAuthor());
+        book.setBookTitle(dto.getBookTitle());
+        book.setPublicationYear(dto.getPublicationYear());
+        book.setDescription(dto.getDescription());
+
+        Book updatedBook = bookDAO.save(book);
+        logger.info("Данные книги обновлены. ID: {}, ISBN: {}", updatedBook.getId(), updatedBook.getIsbn());
+
+        return bookMapper.toResponseDTO(updatedBook);
     }
 
     @Transactional
-    private void deleteDependencies(Book book) {
-        catalogService.removeBookFromAllCatalogs(book.getId());
-
-        book.getCopies().forEach(copy ->
-                bookCopyDAO.delete(copy.getCopyId()));
+    public void deleteBook(RequestIdDTO dto) {
+        logger.debug("Попытка удаления Книги {}", dto.getId());
+        Book book = findBookByIdOrThrow(dto.getId());
+        validateDeletion(book);
+        logger.debug("Удаление зависимостей Книги {}", dto.getId());
+        catalogService.removeBookFromAllCatalogs(dto.getId());
+        bookCopyService.deleteBookCopies(dto.getId());
+        bookDAO.delete(dto.getId());
+        logger.info("Книга {} успешно удалена ", dto.getId());
     }
 
     @Transactional(readOnly = true)
-    private Book getBookById(int bookId) {
-        return bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+    public BookDetailsDTO getBookDetails(RequestIdDTO dto) {
+        logger.debug("Попытка получения информации о Книге через ID: {}", dto.getId());
+
+        Book book = bookDAO.findByIdWithCopies(dto.getId())
+                .orElseThrow(() -> {
+                    logger.warn("Книга не найдена по ID: {}", dto.getId());
+                    return new EntityNotFoundException("Книга не найдена");
+                });
+        return bookMapper.toDetailsDTO(book);
     }
 
+    private Book findBookByIdOrThrow(int bookId) {
+        return bookDAO.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
+    }
 
     private void validateDeletion(Book book) {
+        logger.debug("Валидация удаления книги");
         if (book.getCopies().stream().anyMatch(c -> c.getStatus() == CopyStatus.RENTED)) {
-            throw new IllegalStateException("Book has active rentals");
-        }
-    }
-
-    private void validateStatusChange(BookCopy copy, CopyStatus newStatus) {
-        if (newStatus == CopyStatus.RENTED && copy.getStatus() != CopyStatus.AVAILABLE) {
-            throw new IllegalStateException("Copy must be available for renting");
+            logger.info("Невозможно удалить книгу, т.к. у книги существуют активные Аренды");
+            throw new IllegalStateException("Невозможно удалить книгу, т.к. у книги существуют активные Аренды");
         }
     }
 }

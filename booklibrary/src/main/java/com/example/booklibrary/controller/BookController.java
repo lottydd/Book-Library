@@ -1,7 +1,7 @@
 package com.example.booklibrary.controller;
 
-import com.example.booklibrary.dto.request.book.BookAddDTO;
-import com.example.booklibrary.dto.request.book.BookDetailsDTO;
+import com.example.booklibrary.dto.request.book.BookCreateDTO;
+import com.example.booklibrary.dto.response.book.BookDetailsDTO;
 import com.example.booklibrary.dto.request.book.BookUpdateDTO;
 import com.example.booklibrary.dto.response.book.BookResponseDTO;
 import com.example.booklibrary.service.BookService;
@@ -20,22 +20,22 @@ public class BookController {
         this.bookService = bookService;
     }
 
+
     @PostMapping
-    public ResponseEntity<BookResponseDTO> addBook(@RequestBody @Valid BookAddDTO dto) {
-        return new ResponseEntity<>(bookService.addOrUpdateBook(dto), HttpStatus.CREATED);
+    public ResponseEntity<BookResponseDTO> addBook(@RequestBody @Valid BookCreateDTO dto) {
+        return new ResponseEntity<>(bookService.createBook(dto), HttpStatus.CREATED);
     }
 
+    @PutMapping
+    public ResponseEntity<BookResponseDTO> updateBook(@RequestBody @Valid BookUpdateDTO dto) {
+        return ResponseEntity.ok(bookService.updateBook(dto));
+    }
     @GetMapping("/{id}")
     public ResponseEntity<BookDetailsDTO> getBookDetails(@PathVariable int id) {
         return ResponseEntity.ok(bookService.getBookDetails(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BookResponseDTO> updateBook(
-            @PathVariable int id,
-            @RequestBody @Valid BookUpdateDTO dto) {
-        return ResponseEntity.ok(bookService.updateBook(id, dto));
-    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable int id) {

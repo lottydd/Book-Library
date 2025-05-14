@@ -3,7 +3,7 @@ package com.example.booklibrary.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import com.example.booklibrary.dto.request.rental.RentalDTO;
+import com.example.booklibrary.dto.response.rental.RentalDTO;
 import com.example.booklibrary.service.RentalService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
