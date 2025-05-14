@@ -13,6 +13,7 @@ import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,7 @@ public class BookCopyService {
     private final BookDAO bookDAO;
 
     private static final Logger logger = LoggerFactory.getLogger(BookCopyService.class);
-
+    @Autowired
     public BookCopyService(BookCopyDAO bookCopyDAO, BookCopyMapper bookCopyMapper, BookDAO bookDAO) {
         this.bookCopyDAO = bookCopyDAO;
         this.bookCopyMapper = bookCopyMapper;

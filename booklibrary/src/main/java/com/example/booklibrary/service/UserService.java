@@ -12,6 +12,7 @@ import com.example.booklibrary.model.User;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +22,12 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+
     private final UserDAO userDAO;
     private final RoleDAO roleDAO;
     private final UserMapper userMapper;
 
+    @Autowired
     public UserService(UserDAO userDAO, RoleDAO roleDAO, UserMapper userMapper) {
         this.userDAO = userDAO;
         this.roleDAO = roleDAO;
