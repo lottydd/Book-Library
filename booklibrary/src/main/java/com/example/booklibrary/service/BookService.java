@@ -20,14 +20,15 @@ import java.time.LocalDateTime;
 @Service
 public class BookService {
 
-    private BookDAO bookDAO;
+    private final BookDAO bookDAO;
     private final CatalogService catalogService;
     private final BookMapper bookMapper;
     private final BookCopyService bookCopyService;
 
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
     @Autowired
-    public BookService(CatalogService catalogService, BookMapper bookMapper, BookCopyService bookCopyService) {
+    public BookService(BookDAO bookDAO, CatalogService catalogService, BookMapper bookMapper, BookCopyService bookCopyService) {
+        this.bookDAO = bookDAO;
         this.catalogService = catalogService;
         this.bookMapper = bookMapper;
         this.bookCopyService = bookCopyService;
@@ -45,7 +46,7 @@ public class BookService {
         Book savedBook = bookDAO.save(book);
 
         logger.debug("Добавление {} копий книги", dto.getCopiesCount());
-        bookCopyService.addCopiesByCountAndId(savedBook.getId(), dto.getCopiesCount());
+        bookCopyService.addCopiesForNewBook(dto.getCopiesCount(), savedBook );
         logger.info("Книга успешно создана. ID: {}", savedBook.getId());
         return bookMapper.toResponseDTO(savedBook);
     }
