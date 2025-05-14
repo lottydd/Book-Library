@@ -78,7 +78,7 @@ public class UserService {
         User user = userDAO.findById(userId)
                 .orElseThrow(() -> {
                     logger.warn("Пользователь не найден. UserID: {}", userId);
-                    return new EntityNotFoundException("User not found");
+                    return new EntityNotFoundException("Пользователь не найден");
                 });
 
         userMapper.updateFromDto(userUpdateDTO, user);
@@ -96,12 +96,12 @@ public class UserService {
         User user = userDAO.findById(dto.getId())
                 .orElseThrow(() -> {
                     logger.warn("Пользователь не найден при попытке удаления. UserID: {}", dto.getId());
-                    return new EntityNotFoundException("User not found");
+                    return new EntityNotFoundException("Пользователь не найден");
                 });
 
         if (!user.getRentals().isEmpty()) {
             logger.warn("Попытка удаления пользователя с активными арендами. UserID: {}", dto.getId());
-            throw new IllegalStateException("Cannot delete user with active rentals");
+            throw new IllegalStateException("Нельзя удалить пользователя с активными арендами");
         }
 
         userDAO.delete(dto.getId());
@@ -125,13 +125,13 @@ public class UserService {
         logger.debug("Валидация данных регистрации пользователя");
         if (dto == null) {
             logger.warn("Попытка регистрации с null данными");
-            throw new IllegalArgumentException("Registration data cannot be null");
+            throw new IllegalArgumentException("Попытка регистрации с null данными");
         }
 
         if (userDAO.existsByEmailOrUsername(dto.getEmail(), dto.getUsername())) {
             logger.warn("Попытка регистрации с занятым email или username. Email: {}, Username: {}",
                     dto.getEmail(), dto.getUsername());
-            throw new IllegalArgumentException("Email or username already taken");
+            throw new IllegalArgumentException("Email или username уже заняты");
         }
         logger.debug("Данные регистрации валидны");
     }
@@ -141,7 +141,7 @@ public class UserService {
         logger.debug("Валидация данных обновления пользователя. UserID: {}", currentUserId);
         if (dto == null) {
             logger.warn("Попытка обновления с null данными");
-            throw new IllegalArgumentException("Update data cannot be null");
+            throw new IllegalArgumentException("Попытка обновления с null данными");
         }
 
         userDAO.findByEmail(dto.getEmail())
@@ -149,7 +149,7 @@ public class UserService {
                 .ifPresent(user -> {
                     logger.warn("Попытка обновления на занятый email. Email: {}, CurrentUserID: {}",
                             dto.getEmail(), currentUserId);
-                    throw new IllegalArgumentException("Email " + dto.getEmail() + " is already taken by another user");
+                    throw new IllegalArgumentException("Email " + dto.getEmail() + " уже занят другим пользователем");
                 });
 
         userDAO.findByUsername(dto.getUsername())
@@ -157,7 +157,7 @@ public class UserService {
                 .ifPresent(user -> {
                     logger.warn("Попытка обновления на занятый username. Username: {}, CurrentUserID: {}",
                             dto.getUsername(), currentUserId);
-                    throw new IllegalArgumentException("Username " + dto.getUsername() + " is already taken by another user");
+                    throw new IllegalArgumentException("Username " + dto.getUsername() + " уже занят другим пользователем");
                 });
         logger.debug("Данные обновления валидны");
     }

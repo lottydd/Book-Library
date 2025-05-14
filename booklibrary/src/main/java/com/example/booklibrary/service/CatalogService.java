@@ -64,12 +64,12 @@ public class CatalogService {
         logger.debug("Добавление книги ID {} в каталог ID {}", dto.getBookId(), dto.getCatalogId());
         Book book = bookDAO.findById(dto.getBookId())
                 .orElseThrow(() -> {
-                    logger.warn("Книга не найдена по ID: {}", dto.getBookId()); // добавлено
+                    logger.warn("Книга не найдена по ID: {}", dto.getBookId());
                     return new EntityNotFoundException("Книга не найдена");
                 });
         Catalog catalog = catalogDAO.findById(dto.getCatalogId())
                 .orElseThrow(() -> {
-                    logger.warn("Каталог не найден по ID: {}", dto.getCatalogId()); // добавлено
+                    logger.warn("Каталог не найден по ID: {}", dto.getCatalogId());
                     return new EntityNotFoundException("Каталог не найден");
                 });
         if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {

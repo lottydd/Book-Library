@@ -91,7 +91,7 @@ public class RentalService {
         Rental activeRental = rentalDAO.findActiveRentalByCopyId(dto.getId())
                 .orElseThrow(() -> {
                     logger.warn("Активная аренда не найдена для копии. CopyID: {}", dto.getId());
-                    return new IllegalStateException("No active rental for this copy");
+                    return new IllegalStateException("Нет активных аренд для этой копии");
                 });
 
         copy.setStatus(CopyStatus.AVAILABLE);
@@ -152,7 +152,7 @@ public class RentalService {
             logger.warn("Копия недоступна для аренды. CopyID: {}, Status: {}",
                     copy.getCopyId(), copy.getStatus());
             throw new IllegalStateException(
-                    "Copy with id " + copy.getCopyId() + " is not available. Current status: " + copy.getStatus()
+                    "Копия с ID " + copy.getCopyId() + " недоступна для аренды. Текущий статус: " + copy.getStatus()
             );
         }
     }
