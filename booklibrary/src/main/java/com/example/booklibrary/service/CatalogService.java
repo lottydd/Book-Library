@@ -40,30 +40,41 @@ public class CatalogService {
 
     @Transactional
     public CatalogCreateResponseDTO createCatalog(CatalogCreateDTO dto) {
+        logger.debug("Попытка создания каталога");
         Catalog catalog = new Catalog();
         catalog.setName(dto.getName());
 
         if (dto.getParentId() != null) {
             Catalog parent = catalogDAO.findById(dto.getParentId())
-                    .orElseThrow(() -> new EntityNotFoundException("Parent catalog not found"));
-            catalog.setParent(parent);
+                    .orElseThrow(() -> {
+                        logger.warn("Родительский каталог не найден по ID: {}", dto.getParentId());
+                        return new EntityNotFoundException("Parent catalog not found");
+                    });
             parent.getChildren().add(catalog);
             catalogDAO.update(parent);
         }
 
         Catalog savedCatalog = catalogDAO.save(catalog);
+        logger.info("Каталог успешно создан. ID: {}", savedCatalog.getId());
         return catalogMapper.toCatalogCreateResponseDTO(savedCatalog);
     }
 
     @Transactional
     public CatalogAddBookResponseDTO addBookToCatalog(CatalogAddBookDTO dto) {
+        logger.debug("Добавление книги ID {} в каталог ID {}", dto.getBookId(), dto.getCatalogId());
         Book book = bookDAO.findById(dto.getBookId())
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+                .orElseThrow(() -> {
+                    logger.warn("Книга не найдена по ID: {}", dto.getBookId()); // добавлено
+                    return new EntityNotFoundException("Книга не найдена");
+                });
         Catalog catalog = catalogDAO.findById(dto.getCatalogId())
-                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
-
+                .orElseThrow(() -> {
+                    logger.warn("Каталог не найден по ID: {}", dto.getCatalogId()); // добавлено
+                    return new EntityNotFoundException("Каталог не найден");
+                });
         if (bookCatalogDAO.existsByBookAndCatalog(book, catalog)) {
-            throw new IllegalStateException("Book is already in the catalog");
+            logger.warn("Книга уже находится в каталоге. Book ID: {}, Catalog ID: {}", dto.getBookId(), dto.getCatalogId());
+            throw new IllegalStateException("Книга уже находится в каталоге");
         }
 
         BookCatalog bookCatalog = new BookCatalog();
@@ -71,6 +82,7 @@ public class CatalogService {
         bookCatalog.setCatalog(catalog);
 
         BookCatalog savedBookCatalog = bookCatalogDAO.save(bookCatalog);
+        logger.info("Книга успешно добавлена в каталог. Book ID: {}, Catalog ID: {}", dto.getBookId(), dto.getCatalogId());
         return catalogMapper.toCatalogAddBookResponseDTO(savedBookCatalog);
     }
 
@@ -89,15 +101,22 @@ public class CatalogService {
 
     @Transactional
     public void deleteCatalog(RequestIdDTO dto) {
+        logger.debug("Попытка удаления каталога ID {}", dto.getId());
         Catalog catalog = catalogDAO.findById(dto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Catalog not found"));
+                .orElseThrow(() -> {
+                    logger.warn("Каталог не найден по ID: {}", dto.getId());
+                    return new EntityNotFoundException("Catalog not found");
+                });
         deleteCatalogRecursive(catalog);
+        logger.info("Каталог ID {} успешно удален", dto.getId());
     }
 
     @Transactional(readOnly = true)
     public List<CatalogTreeDTO> getCatalogTree() {
+        logger.debug("Получение дерева каталогов");
         List<Catalog> rootCatalogs = catalogDAO.findRootCatalogs();
-        return catalogMapper.toTreeDtoList(rootCatalogs);
+        List<Catalog> fullTree = fetchChildrenRecursively(rootCatalogs);
+        return catalogMapper.toTreeDtoList(fullTree);
     }
 
     @Transactional
@@ -111,6 +130,7 @@ public class CatalogService {
 
     @Transactional
     private void deleteCatalogRecursive(Catalog catalog) {
+        logger.debug("Рекурсивное удаление каталога ID {}", catalog.getId());
         if (!catalog.getBookCatalogs().isEmpty()) {
             bookCatalogDAO.deleteAll(catalog.getBookCatalogs());
         }
