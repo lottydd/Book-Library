@@ -1,5 +1,11 @@
 package com.example.booklibrary.controller;
 
+import com.example.booklibrary.dto.request.RequestIdDTO;
+import com.example.booklibrary.dto.request.rental.RentalCopyDTO;
+import com.example.booklibrary.dto.response.rental.RentalCopyStoryResponseDTO;
+import com.example.booklibrary.dto.response.rental.RentalLateResponseDTO;
+import com.example.booklibrary.dto.response.rental.RentalUserHistoryResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -22,28 +28,44 @@ public class RentalController {
         this.rentalService = rentalService;
     }
 
+
     @PostMapping
-    public ResponseEntity<RentalDTO> rentBook(
-            @RequestParam int userId,
-            @RequestParam int copyId,
-            @RequestParam LocalDateTime dueDate) {
-        return new ResponseEntity<>(
-                rentalService.rentCopy(userId, copyId, dueDate),
-                HttpStatus.CREATED);
+    public ResponseEntity<RentalDTO> rentCopy(@RequestBody @Valid RentalCopyDTO rentalCopyDTO) {
+        RentalDTO rentalDTO = rentalService.rentCopy(rentalCopyDTO);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(rentalDTO);
     }
 
-    @PostMapping("/{copyId}/return")
-    public ResponseEntity<RentalDTO> returnBook(@PathVariable int copyId) {
-        return ResponseEntity.ok(rentalService.returnCopy(copyId));
+    @PutMapping("/{copyId}/return")
+    public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable int copyId) {
+        RentalDTO rentalDTO = rentalService.returnCopy(new RequestIdDTO(copyId));
+        return ResponseEntity.ok(rentalDTO);
     }
 
     @GetMapping("/overdue")
-    public ResponseEntity<List<RentalDTO>> getOverdueRentals() {
-        return ResponseEntity.ok(rentalService.findOverdueRentals());
+    public ResponseEntity<List<RentalLateResponseDTO>> getOverdueRentals() {
+        List<RentalLateResponseDTO> overdueRentals = rentalService.findOverdueRentals();
+        return ResponseEntity.ok(overdueRentals);
     }
 
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<List<RentalDTO>> getUserRentals(@PathVariable int userId) {
-        return ResponseEntity.ok(rentalService.getUserRentalHistory(userId));
+    @PutMapping("/mark-overdue")
+    public ResponseEntity<Void> markOverdueRentals() {
+        rentalService.markOverdueRentalsAsLate();
+        return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user-history/{userId}")
+    public ResponseEntity<List<RentalUserHistoryResponseDTO>> getUserRentalHistory(
+            @PathVariable int userId) {
+        List<RentalUserHistoryResponseDTO> history = rentalService.getUserRentalHistory(userId);
+        return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/copy-history/{copyId}")
+    public ResponseEntity<List<RentalCopyStoryResponseDTO>> getCopyRentalHistory(
+            @PathVariable int copyId) {
+        List<RentalCopyStoryResponseDTO> history = rentalService.getCopyRentalHistory(copyId);
+        return ResponseEntity.ok(history);
+    }
+
 }

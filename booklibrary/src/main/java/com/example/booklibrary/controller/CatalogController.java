@@ -1,10 +1,12 @@
 package com.example.booklibrary.controller;
 
+import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.book.BookUpdateDTO;
 import com.example.booklibrary.dto.request.catalog.CatalogAddBookDTO;
 import com.example.booklibrary.dto.request.catalog.CatalogCreateDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogAddBookResponseDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogCreateResponseDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogTreeDTO;
 import com.example.booklibrary.model.Catalog;
 import com.example.booklibrary.service.CatalogService;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,16 +27,12 @@ public class CatalogController {
         this.catalogService = catalogService;
     }
 
+
     @PostMapping
-    public ResponseEntity<CatalogCreateResponseDTO> createCatalog(
-            @RequestBody @Valid CatalogCreateDTO dto) {
+    public ResponseEntity<CatalogCreateResponseDTO> createCatalog
+            (@RequestBody @Valid CatalogCreateDTO dto) {
         CatalogCreateResponseDTO response = catalogService.createCatalog(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @GetMapping("/tree")
-    public ResponseEntity<List<Catalog>> getCatalogTree() {
-        return ResponseEntity.ok(catalogService.getCatalogTree());
     }
 
     @PostMapping("/{catalogId}/books")
@@ -49,13 +47,22 @@ public class CatalogController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{catalogId}")
-    public ResponseEntity<?> deleteCatalog(@PathVariable int catalogId) {
-        try {
-            catalogService.deleteCatalog(catalogId);
-            return ResponseEntity.noContent().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCatalog(@PathVariable int id) {
+        catalogService.deleteCatalog(new RequestIdDTO(id));
+        return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/books/{bookId}")
+    public ResponseEntity<Void> removeBookFromAllCatalogs(@PathVariable int bookId) {
+        catalogService.removeBookFromAllCatalogs(bookId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/tree")
+    public ResponseEntity<List<CatalogTreeDTO>> getCatalogTree() {
+        List<CatalogTreeDTO> tree = catalogService.getCatalogTree();
+        return ResponseEntity.ok(tree);
+    }
+
 }
