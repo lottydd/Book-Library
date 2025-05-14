@@ -45,7 +45,6 @@ public interface RentalMapper {
                 .toList();
     }
 
-
     default List<RentalUserHistoryResponseDTO> toUserHistoryDtoList(List<Rental> rentals) {
         if (rentals == null) {
             return Collections.emptyList();
