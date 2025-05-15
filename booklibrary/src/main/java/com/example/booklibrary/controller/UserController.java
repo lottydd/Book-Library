@@ -42,7 +42,7 @@ public class UserController {
         UserDTO updatedUser = userService.deleteRoleFromUser(userId, roleName);
         return ResponseEntity.ok(updatedUser);
     }
-    
+
     // +
     @PutMapping("/{userId}")
     public ResponseEntity<UserDTO> updateUser(

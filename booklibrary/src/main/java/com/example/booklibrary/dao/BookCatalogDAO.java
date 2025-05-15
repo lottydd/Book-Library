@@ -99,6 +99,25 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
         }
     }
 
+    public boolean existsByCatalogIdAndBookId(int catalogId, int bookId) {
+        String ql = "SELECT count(bc) FROM BookCatalog bc WHERE bc.catalog.id = :catalogId AND bc.book.id = :bookId";
+        Long count = entityManager.createQuery(ql, Long.class)
+                .setParameter("catalogId", catalogId)
+                .setParameter("bookId", bookId)
+                .getSingleResult();
+        return count > 0;
+    }
+
+    public void deleteByCatalogIdAndBookId(int catalogId, int bookId) {
+        String ql = "DELETE FROM BookCatalog bc WHERE bc.catalog.id = :catalogId AND bc.book.id = :bookId";
+        int deleted = entityManager.createQuery(ql)
+                .setParameter("catalogId", catalogId)
+                .setParameter("bookId", bookId)
+                .executeUpdate();
+        logger.debug("Удалено {} записей связи книга-каталог", deleted);
+    }
+
+
     public int deleteByBookId(int bookId) {
         logger.debug("Массовое удаление связей книги ID {}", bookId);
         int deletedCount = entityManager.createQuery(
@@ -108,6 +127,16 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
 
         logger.info("Удалено {} связей для книги ID {}", deletedCount, bookId);
         return deletedCount;
+    }
+
+    public List<BookCatalog> findByCatalogId(int catalogId) {
+        logger.debug("Поиск книг по ID каталога {}", catalogId);
+        return entityManager.createQuery(
+                        "SELECT bc FROM BookCatalog bc " +
+                                "JOIN FETCH bc.book " +
+                                "WHERE bc.catalog.id = :catalogId", BookCatalog.class)
+                .setParameter("catalogId", catalogId)
+                .getResultList();
     }
 
 }
