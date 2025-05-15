@@ -70,7 +70,6 @@ public class BookService {
 
         return bookMapper.toResponseDTO(updatedBook);
     }
-
     @Transactional
     public void deleteBook(RequestIdDTO dto) {
         logger.debug("Попытка удаления Книги {}", dto.getId());

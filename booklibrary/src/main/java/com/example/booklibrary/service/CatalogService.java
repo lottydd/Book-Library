@@ -137,22 +137,22 @@ public class CatalogService {
     @Transactional
     private void deleteCatalogRecursive(Catalog catalog) {
         logger.debug("Рекурсивное удаление каталога ID {}", catalog.getId());
-        if (!catalog.getBookCatalogs().isEmpty()) {
-            bookCatalogDAO.deleteAll(catalog.getBookCatalogs());
-        }
+
         if (!catalog.getChildren().isEmpty()) {
             List<Catalog> children = new ArrayList<>(catalog.getChildren());
             for (Catalog child : children) {
                 deleteCatalogRecursive(child);
             }
-            Catalog parent = catalog.getParent();
-            if (parent != null) {
-                parent.getChildren().remove(catalog);
-                catalogDAO.update(parent);
-            }
-            catalogDAO.delete(catalog.getId());
         }
-    }
 
+        Catalog parent = catalog.getParent();
+        if (parent != null) {
+            parent.getChildren().remove(catalog);
+            catalogDAO.update(parent);
+        }
+
+        catalogDAO.delete(catalog.getId());
+        logger.info("Каталог ID {} удален", catalog.getId());
+    }
 
 }

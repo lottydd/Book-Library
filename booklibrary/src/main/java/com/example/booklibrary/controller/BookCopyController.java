@@ -26,7 +26,7 @@ public class BookCopyController {
         bookCopyService.addCopies(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    //?
+    //+
     @DeleteMapping("/book/{bookId}")
     public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));

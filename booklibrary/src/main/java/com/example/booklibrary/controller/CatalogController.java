@@ -34,12 +34,12 @@ public class CatalogController {
         CatalogCreateResponseDTO response = catalogService.createCatalog(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    
+    //+
     @PostMapping("/{catalogId}/books")
     public ResponseEntity<CatalogAddBookResponseDTO> addBookToCatalog(
-            @PathVariable Integer catalogId,
+            @PathVariable Integer targetCatalogId,
             @RequestBody @Valid CatalogAddBookDTO dto) {
-        if (!catalogId.equals(dto.getCatalogId())) {
+        if (!targetCatalogId.equals(dto.getCatalogId())) {
             throw new IllegalArgumentException("ID Каталога в  пути и в теле запроса" +
                     " должно совпадать " );
         }
@@ -47,23 +47,26 @@ public class CatalogController {
         CatalogAddBookResponseDTO response = catalogService.addBookToCatalog(dto);
         return ResponseEntity.ok(response);
     }
-
+    // +
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCatalog(@PathVariable Integer id) {
         catalogService.deleteCatalog(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
 
+    // переделать на удаление книги из каталога, плохой метод
     @DeleteMapping("/books/{bookId}")
     public ResponseEntity<Void> removeBookFromAllCatalogs(@PathVariable Integer bookId) {
         catalogService.removeBookFromAllCatalogs(bookId);
         return ResponseEntity.noContent().build();
     }
-
+    //+
     @GetMapping("/tree")
     public ResponseEntity<List<CatalogTreeDTO>> getCatalogTree() {
         List<CatalogTreeDTO> tree = catalogService.getCatalogTree();
         return ResponseEntity.ok(tree);
     }
+
+    //метод показывающий книги в катологе тут?
 
 }

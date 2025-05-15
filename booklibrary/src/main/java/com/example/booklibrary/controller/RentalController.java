@@ -35,32 +35,32 @@ public class RentalController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(rentalDTO);
     }
-    //нужно ли здесь проверку того кто возвращает???
+    //нужно ли здесь проверку добавить в проверку того кто возвращает???  +
     @PutMapping("/{copyId}/return")
     public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable Integer copyId) {
         RentalDTO rentalDTO = rentalService.returnCopy(new RequestIdDTO(copyId));
         return ResponseEntity.ok(rentalDTO);
     }
-
+    // надо заполнить бд для прочека
     @GetMapping("/overdue")
     public ResponseEntity<List<RentalLateResponseDTO>> getOverdueRentals() {
         List<RentalLateResponseDTO> overdueRentals = rentalService.findOverdueRentals();
         return ResponseEntity.ok(overdueRentals);
     }
-
+    // надо заполнить бд для прочека
     @PutMapping("/mark-overdue")
     public ResponseEntity<Void> markOverdueRentals() {
         rentalService.markOverdueRentalsAsLate();
         return ResponseEntity.noContent().build();
     }
-
+    // +
     @GetMapping("/user-history/{userId}")
     public ResponseEntity<List<RentalUserHistoryResponseDTO>> getUserRentalHistory(
             @PathVariable int userId) {
         List<RentalUserHistoryResponseDTO> history = rentalService.getUserRentalHistory(userId);
         return ResponseEntity.ok(history);
     }
-
+    // +
     @GetMapping("/copy-history/{copyId}")
     public ResponseEntity<List<RentalCopyStoryResponseDTO>> getCopyRentalHistory(
             @PathVariable int copyId) {
