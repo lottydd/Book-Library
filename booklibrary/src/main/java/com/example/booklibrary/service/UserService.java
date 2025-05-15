@@ -78,13 +78,41 @@ public class UserService {
             logger.warn("Пользователь уже имеет роль. UserID: {}, Role: {}", userId, roleName);
             throw new IllegalArgumentException("Пользователь уже имеет такую роль");
         }
-
-
         user.getRoles().add(role);
         userDAO.save(user);
         logger.info("Роль успешно назначена. UserID: {}, Role: {}", userId, roleName);
         return userMapper.toDto(user);
     }
+
+    @Transactional
+    public UserDTO deleteRoleFromUser(int userId, String roleName) {
+        logger.debug("Попытка удаления роли у пользователя. UserID: {}, Role: {}", userId, roleName);
+
+        User user = userDAO.findById(userId)
+                .orElseThrow(() -> {
+                    logger.warn("Пользователь не найден. UserID: {}", userId);
+                    return new EntityNotFoundException("User not found");
+                });
+
+        Role role = roleDAO.findRoleName(roleName)
+                .orElseThrow(() -> {
+                    logger.warn("Роль не найдена. Role: {}", roleName);
+                    return new EntityNotFoundException("Role not found");
+                });
+
+        if (!user.getRoles().contains(role)) {
+            logger.warn("У пользователя нет такой роли. UserID: {}, Role: {}", userId, roleName);
+            throw new IllegalArgumentException("У пользователя нет такой роли");
+        }
+
+        user.getRoles().remove(role);
+        logger.info("Роль удалена у пользователя. UserID: {}, Role: {}", userId, roleName);
+
+        return userMapper.toDto(user);
+    }
+
+
+
 
     @Transactional
     public UserDTO updateUser(int userId, UserUpdateDTO userUpdateDTO) {
@@ -184,6 +212,7 @@ public class UserService {
                 });
         logger.debug("Данные обновления валидны");
     }
+
 
 
 }

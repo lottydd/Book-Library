@@ -107,6 +107,15 @@ public class BookCopyService {
         return bookCopyDAO.existsByBookIdAndStatus(dto.getId(), CopyStatus.RENTED);
     }
 
+    @Transactional(readOnly = true)
+    public List<BookCopyDTO> getRentedCopies(RequestIdDTO dto) {
+        List<BookCopy> rentedCopies = bookCopyDAO.findRentedCopiesByBookId(dto.getId());
+        return rentedCopies.stream()
+                .map(bookCopyMapper::toDto)
+                .toList();
+    }
+
+    @Transactional
     private BookCopy getCopyById(int copyId) {
         return bookCopyDAO.findById(copyId)
                 .orElseThrow(() -> new EntityNotFoundException("Копия не найдена"));

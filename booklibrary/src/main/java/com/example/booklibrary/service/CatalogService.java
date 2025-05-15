@@ -7,8 +7,10 @@ import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.catalog.CatalogAddBookDTO;
 import com.example.booklibrary.dto.request.catalog.CatalogCreateDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogAddBookResponseDTO;
+import com.example.booklibrary.dto.response.catalog.CatalogBooksResponseDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogCreateResponseDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogTreeDTO;
+import com.example.booklibrary.mapper.BookMapper;
 import com.example.booklibrary.mapper.CatalogMapper;
 import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
@@ -29,15 +31,17 @@ public class CatalogService {
     private final BookDAO bookDAO;
     private final BookCatalogDAO bookCatalogDAO;
     private final CatalogMapper catalogMapper;
+    private final BookMapper bookMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(CatalogService.class);
 
     @Autowired
-    public CatalogService(CatalogDAO catalogDAO, BookDAO bookDAO, BookCatalogDAO bookCatalogDAO, CatalogMapper catalogMapper) {
+    public CatalogService(CatalogDAO catalogDAO, BookDAO bookDAO, BookCatalogDAO bookCatalogDAO, CatalogMapper catalogMapper, BookMapper bookMapper) {
         this.catalogDAO = catalogDAO;
         this.bookDAO = bookDAO;
         this.bookCatalogDAO = bookCatalogDAO;
         this.catalogMapper = catalogMapper;
+        this.bookMapper = bookMapper;
     }
 
     @Transactional
@@ -92,6 +96,21 @@ public class CatalogService {
         return catalogMapper.toCatalogAddBookResponseDTO(savedBookCatalog);
     }
 
+    @Transactional
+    public void removeBookFromCatalog(int catalogId, int bookId) {
+        logger.debug("Удаление книги ID {} из каталога ID {}", bookId, catalogId);
+
+        boolean exists = bookCatalogDAO.existsByCatalogIdAndBookId(catalogId, bookId);
+        if (!exists) {
+            logger.warn("Связь книга ID {} — каталог ID {} не найдена", bookId, catalogId);
+            throw new EntityNotFoundException("Книга не найдена в указанном каталоге");
+        }
+
+        bookCatalogDAO.deleteByCatalogIdAndBookId(catalogId, bookId);
+        logger.info("Книга ID {} успешно удалена из каталога ID {}", bookId, catalogId);
+    }
+
+
 
     @Transactional
     public void removeBookFromAllCatalogs(int bookId) {
@@ -125,6 +144,10 @@ public class CatalogService {
         return catalogMapper.toTreeDtoList(fullTree);
     }
 
+
+
+
+
     @Transactional
     private List<Catalog> fetchChildrenRecursively(List<Catalog> catalogs) {
         catalogs.forEach(catalog -> {
@@ -137,22 +160,33 @@ public class CatalogService {
     @Transactional
     private void deleteCatalogRecursive(Catalog catalog) {
         logger.debug("Рекурсивное удаление каталога ID {}", catalog.getId());
-        if (!catalog.getBookCatalogs().isEmpty()) {
-            bookCatalogDAO.deleteAll(catalog.getBookCatalogs());
-        }
+
         if (!catalog.getChildren().isEmpty()) {
             List<Catalog> children = new ArrayList<>(catalog.getChildren());
             for (Catalog child : children) {
                 deleteCatalogRecursive(child);
             }
-            Catalog parent = catalog.getParent();
-            if (parent != null) {
-                parent.getChildren().remove(catalog);
-                catalogDAO.update(parent);
-            }
-            catalogDAO.delete(catalog.getId());
         }
+
+        Catalog parent = catalog.getParent();
+        if (parent != null) {
+            parent.getChildren().remove(catalog);
+            catalogDAO.update(parent);
+        }
+
+        catalogDAO.delete(catalog.getId());
+        logger.info("Каталог ID {} удален", catalog.getId());
     }
 
+    @Transactional(readOnly = true)
+    public List<CatalogBooksResponseDTO> getCatalogBooks(int catalogId) {
+        List<BookCatalog> bookCatalogs = bookCatalogDAO.findByCatalogId(catalogId);
 
+        return bookCatalogs.stream()
+                .map(bc -> {
+                    Book book = bc.getBook();
+                    return bookMapper.toCatalogBookResponseDTO(book);
+                })
+                .toList();
+    }
 }

@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/book-copies")
 public class BookCopyController {
@@ -26,7 +28,7 @@ public class BookCopyController {
         bookCopyService.addCopies(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    //?
+    //+
     @DeleteMapping("/book/{bookId}")
     public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));
@@ -41,11 +43,11 @@ public class BookCopyController {
         return ResponseEntity.ok(updatedCopy);
     }
 
-    //Переделать сервисный чтобы возвращало информацию об арендованных копиях но не точно
+    //+
     @GetMapping("/has-rented/{bookId}")
-    public ResponseEntity<Boolean> hasRentedCopies(@PathVariable Integer bookId) {
-        boolean hasRented = bookCopyService.hasRentedCopies(new RequestIdDTO(bookId));
-        return ResponseEntity.ok(hasRented);
+    public ResponseEntity<List<BookCopyDTO>> rentedCopiesInfo(@PathVariable Integer bookId) {
+        List<BookCopyDTO> rentedCopies = bookCopyService.getRentedCopies(new RequestIdDTO(bookId));
+        return ResponseEntity.ok(rentedCopies);
     }
 
 }
