@@ -42,6 +42,24 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
         return exists;
     }
 
+    public List<BookCopy> findRentedCopiesByBookId(int bookId) {
+        logger.debug("Поиск арендованных копий книги ID {}", bookId);
+
+        List<BookCopy> result = entityManager.createQuery(
+                        "SELECT c FROM BookCopy c WHERE c.book.id = :bookId AND c.status = :status", BookCopy.class)
+                .setParameter("bookId", bookId)
+                .setParameter("status", CopyStatus.RENTED)
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            logger.info("Найдены {} арендованных копий книги ID {}", result.size(), bookId);
+        } else {
+            logger.debug("Арендованные копии книги ID {} не найдены", bookId);
+        }
+
+        return result;
+    }
+
 
     public List<BookCopy> findAllByBookId(int bookId) {
         return entityManager.createQuery(

@@ -59,6 +59,7 @@ public class CatalogController {
     public ResponseEntity<Void> removeBookFromAllCatalogs(@PathVariable Integer bookId) {
         catalogService.removeBookFromAllCatalogs(bookId);
         return ResponseEntity.noContent().build();
+
     }
     //+
     @GetMapping("/tree")
