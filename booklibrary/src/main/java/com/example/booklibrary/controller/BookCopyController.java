@@ -20,18 +20,20 @@ public class BookCopyController {
         this.bookCopyService = bookCopyService;
     }
 
+    //+
     @PostMapping
     public ResponseEntity<Void> addCopies(@RequestBody @Valid BookAddCopyDTO dto) {
         bookCopyService.addCopies(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
+    //?
     @DeleteMapping("/book/{bookId}")
     public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));
         return ResponseEntity.noContent().build();
     }
 
+    //+
     @PatchMapping("/status")
     public ResponseEntity<BookCopyDTO> updateCopyStatus(
             @RequestBody @Valid BookCopyUpdateDTO dto) {
@@ -39,6 +41,7 @@ public class BookCopyController {
         return ResponseEntity.ok(updatedCopy);
     }
 
+    //Переделать сервисный чтобы возвращало информацию об арендованных копиях но не точно
     @GetMapping("/has-rented/{bookId}")
     public ResponseEntity<Boolean> hasRentedCopies(@PathVariable Integer bookId) {
         boolean hasRented = bookCopyService.hasRentedCopies(new RequestIdDTO(bookId));

@@ -55,12 +55,12 @@ public class CatalogService {
             catalog.setParent(parent);
 
             catalogDAO.save(catalog); // Явное сохранение
-            parent.getChildren().add(catalog); //  Обновляем в памяти для согласованности, можно и не делать
+            parent.getChildren().add(catalog); //  Обновляем в памяти для согласованности, не обязательно
         } else {
             catalogDAO.save(catalog); // Для корневых
         }
 
-        catalogDAO.flush(); // Синхронизация чтобы получить айпи
+        catalogDAO.flush(); // Синхронизация, чтобы получить ID
         logger.info("Каталог успешно создан. ID: {}", catalog.getId());
 
         return catalogMapper.toCatalogCreateResponseDTO(catalog);

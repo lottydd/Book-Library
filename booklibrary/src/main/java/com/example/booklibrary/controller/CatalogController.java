@@ -27,20 +27,21 @@ public class CatalogController {
         this.catalogService = catalogService;
     }
 
-
+    //+
     @PostMapping
     public ResponseEntity<CatalogCreateResponseDTO> createCatalog
             (@RequestBody @Valid CatalogCreateDTO dto) {
         CatalogCreateResponseDTO response = catalogService.createCatalog(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
+    
     @PostMapping("/{catalogId}/books")
     public ResponseEntity<CatalogAddBookResponseDTO> addBookToCatalog(
             @PathVariable Integer catalogId,
             @RequestBody @Valid CatalogAddBookDTO dto) {
         if (!catalogId.equals(dto.getCatalogId())) {
-            throw new IllegalArgumentException("Catalog ID in path and body must match");
+            throw new IllegalArgumentException("ID Каталога в  пути и в теле запроса" +
+                    " должно совпадать " );
         }
 
         CatalogAddBookResponseDTO response = catalogService.addBookToCatalog(dto);
