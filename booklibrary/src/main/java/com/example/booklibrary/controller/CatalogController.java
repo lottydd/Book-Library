@@ -67,7 +67,7 @@ public class CatalogController {
         return ResponseEntity.ok(tree);
     }
 
-    //
+    // +
     @GetMapping("/{catalogId}/books")
     public ResponseEntity<List<CatalogBooksResponseDTO>> getBooksFromCatalog(@PathVariable Integer catalogId){
         List<CatalogBooksResponseDTO> catalogBooks = catalogService.getCatalogBooks(catalogId);
