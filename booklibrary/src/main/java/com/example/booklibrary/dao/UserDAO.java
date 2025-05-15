@@ -1,7 +1,9 @@
 package com.example.booklibrary.dao;
 
 import com.example.booklibrary.model.User;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;

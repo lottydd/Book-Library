@@ -13,6 +13,7 @@ import com.example.booklibrary.util.CopyStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class BookCopyService {
 
     private static final Logger logger = LoggerFactory.getLogger(BookCopyService.class);
 
+    @Autowired
     public BookCopyService(BookCopyDAO bookCopyDAO, BookCopyMapper bookCopyMapper, BookDAO bookDAO) {
         this.bookCopyDAO = bookCopyDAO;
         this.bookCopyMapper = bookCopyMapper;
@@ -39,7 +41,7 @@ public class BookCopyService {
     public void addCopies(BookAddCopyDTO dto) {
         logger.debug("Попытка добавления {} копий для книги {}", dto.getCount(), dto.getBookId());
         Book book = bookDAO.findById(dto.getBookId())
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
         logger.debug("Книга найдена: ID: {}, Название: '{}'",
                 book.getId(), book.getBookTitle());
         List<BookCopy> copies = new ArrayList<>();
@@ -59,16 +61,13 @@ public class BookCopyService {
     }
 
     @Transactional
-    public void addCopiesByCountAndId(int bookCount, int bookId) {
-        logger.debug("Попытка добавления  {} копий для книги  {}", bookCount, bookId);
-        Book book = bookDAO.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found"));
-        logger.debug("Книга  найдена: ID: {}, Название: '{}'",
-                book.getId(), book.getBookTitle());
+    public void addCopiesForNewBook(int bookCount, Book newBook) {
+        logger.debug("Попытка добавления  {} копий для книги  {}", bookCount, newBook.getBookTitle());
+
         List<BookCopy> copies = new ArrayList<>();
         for (int i = 0; i < bookCount; i++) {
             copies.add(BookCopy.builder()
-                    .book(book)
+                    .book(newBook)
                     .status(CopyStatus.AVAILABLE)
                     .build());
         }
@@ -78,7 +77,7 @@ public class BookCopyService {
         bookCopyDAO.saveAll(copies);
         logger.info("Успешно  добавлено {} копий для книги ID: {}",
                 bookCount,
-                bookId);
+                newBook.getBookTitle());
     }
 
     //ADMIN

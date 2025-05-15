@@ -52,15 +52,19 @@ public class CatalogService {
                         logger.warn("Родительский каталог не найден по ID: {}", dto.getParentId());
                         return new EntityNotFoundException("Parent catalog not found");
                     });
-            parent.getChildren().add(catalog);
-            catalogDAO.update(parent);
+            catalog.setParent(parent);
+
+            catalogDAO.save(catalog); // Явное сохранение
+            parent.getChildren().add(catalog); //  Обновляем в памяти для согласованности, не обязательно
+        } else {
+            catalogDAO.save(catalog); // Для корневых
         }
 
-        Catalog savedCatalog = catalogDAO.save(catalog);
-        logger.info("Каталог успешно создан. ID: {}", savedCatalog.getId());
-        return catalogMapper.toCatalogCreateResponseDTO(savedCatalog);
-    }
+        catalogDAO.flush(); // Синхронизация, чтобы получить ID
+        logger.info("Каталог успешно создан. ID: {}", catalog.getId());
 
+        return catalogMapper.toCatalogCreateResponseDTO(catalog);
+    }
     @Transactional
     public CatalogAddBookResponseDTO addBookToCatalog(CatalogAddBookDTO dto) {
         logger.debug("Добавление книги ID {} в каталог ID {}", dto.getBookId(), dto.getCatalogId());

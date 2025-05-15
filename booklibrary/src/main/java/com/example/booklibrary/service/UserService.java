@@ -7,13 +7,18 @@ import com.example.booklibrary.dto.request.user.UserCreateDTO;
 import com.example.booklibrary.dto.request.user.UserUpdateDTO;
 import com.example.booklibrary.dto.response.user.UserDTO;
 import com.example.booklibrary.mapper.UserMapper;
+import com.example.booklibrary.model.Rental;
 import com.example.booklibrary.model.Role;
 import com.example.booklibrary.model.User;
+import com.example.booklibrary.util.RentalStatus;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 
@@ -21,10 +26,12 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+
     private final UserDAO userDAO;
     private final RoleDAO roleDAO;
     private final UserMapper userMapper;
 
+    @Autowired
     public UserService(UserDAO userDAO, RoleDAO roleDAO, UserMapper userMapper) {
         this.userDAO = userDAO;
         this.roleDAO = roleDAO;
@@ -46,6 +53,10 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
+    private boolean validationRoleDuplication(User user, String roleName) {
+        return user.getRoles().stream()
+                .anyMatch(existingRole -> existingRole.getRoleName().equalsIgnoreCase(roleName));
+    }
 
     @Transactional
     public UserDTO assignRoleToUser(int userId, String roleName) {
@@ -62,6 +73,12 @@ public class UserService {
                     logger.warn("Роль не найдена. Role: {}", roleName);
                     return new EntityNotFoundException("Role not found");
                 });
+
+        if (validationRoleDuplication(user, role.getRoleName())) {
+            logger.warn("Пользователь уже имеет роль. UserID: {}, Role: {}", userId, roleName);
+            throw new IllegalArgumentException("Пользователь уже имеет такую роль");
+        }
+
 
         user.getRoles().add(role);
         userDAO.save(user);
@@ -91,7 +108,7 @@ public class UserService {
 
     @Transactional
     public void deleteUser(RequestIdDTO dto) {
-        logger.debug("Попытка удаления пользователя. UserID: {}",dto.getId() );
+        logger.debug("Попытка удаления пользователя. UserID: {}", dto.getId());
 
         User user = userDAO.findById(dto.getId())
                 .orElseThrow(() -> {
@@ -99,7 +116,7 @@ public class UserService {
                     return new EntityNotFoundException("Пользователь не найден");
                 });
 
-        if (!user.getRentals().isEmpty()) {
+        if (validateUserRentals(user.getRentals())) {
             logger.warn("Попытка удаления пользователя с активными арендами. UserID: {}", dto.getId());
             throw new IllegalStateException("Нельзя удалить пользователя с активными арендами");
         }
@@ -107,6 +124,12 @@ public class UserService {
         userDAO.delete(dto.getId());
         logger.info("Пользователь успешно удален. UserID: {}", dto.getId());
     }
+
+    private boolean validateUserRentals(List<Rental> rentals) {
+        return rentals.stream()
+                .anyMatch(rental -> rental.getStatus() == RentalStatus.RENTED || rental.getStatus() == RentalStatus.LATE);
+    }
+
 
     @Transactional(readOnly = true)
     public UserDTO findUserById(RequestIdDTO dto) {

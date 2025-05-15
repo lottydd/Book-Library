@@ -28,14 +28,14 @@ public class RentalController {
         this.rentalService = rentalService;
     }
 
-
+    //+
     @PostMapping
     public ResponseEntity<RentalDTO> rentCopy(@RequestBody @Valid RentalCopyDTO rentalCopyDTO) {
         RentalDTO rentalDTO = rentalService.rentCopy(rentalCopyDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(rentalDTO);
     }
-
+    //нужно ли здесь проверку того кто возвращает???
     @PutMapping("/{copyId}/return")
     public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable Integer copyId) {
         RentalDTO rentalDTO = rentalService.returnCopy(new RequestIdDTO(copyId));
