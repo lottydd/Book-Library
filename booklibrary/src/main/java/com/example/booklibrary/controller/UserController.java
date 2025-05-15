@@ -26,7 +26,7 @@ public class UserController {
         UserDTO registeredUser = userService.registerUser(userCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
     }
-    //+ нужен наверное метод чтобы убрать роль еще
+    //+
     @PostMapping("/{userId}/assign-role/{roleName}")
     public ResponseEntity<UserDTO> assignRoleToUser(
             @PathVariable int userId,
@@ -34,7 +34,15 @@ public class UserController {
         UserDTO updatedUser = userService.assignRoleToUser(userId, roleName);
         return ResponseEntity.ok(updatedUser);
     }
-
+    //+
+    @PostMapping("/{userId}/delete-role/{roleName}")
+    public ResponseEntity<UserDTO> deleteRoleFromUser(
+            @PathVariable int userId,
+            @PathVariable String roleName) {
+        UserDTO updatedUser = userService.deleteRoleFromUser(userId, roleName);
+        return ResponseEntity.ok(updatedUser);
+    }
+    
     // +
     @PutMapping("/{userId}")
     public ResponseEntity<UserDTO> updateUser(
