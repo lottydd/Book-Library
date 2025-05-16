@@ -6,6 +6,7 @@ import com.example.booklibrary.dto.response.rental.RentalCopyStoryResponseDTO;
 import com.example.booklibrary.dto.response.rental.RentalLateResponseDTO;
 import com.example.booklibrary.dto.response.rental.RentalUserHistoryResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -29,31 +30,36 @@ public class RentalController {
     }
 
     //+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<RentalDTO> rentCopy(@RequestBody @Valid RentalCopyDTO rentalCopyDTO) {
         RentalDTO rentalDTO = rentalService.rentCopy(rentalCopyDTO);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(rentalDTO);
     }
-    //нужно ли здесь проверку добавить в проверку того кто возвращает???  +
+    //добавить проверку чтобы был метч того кто возвращает  +
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{copyId}/return")
     public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable Integer copyId) {
         RentalDTO rentalDTO = rentalService.returnCopy(new RequestIdDTO(copyId));
         return ResponseEntity.ok(rentalDTO);
     }
-    // надо заполнить бд для прочека
+    // +-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/overdue")
     public ResponseEntity<List<RentalLateResponseDTO>> getOverdueRentals() {
         List<RentalLateResponseDTO> overdueRentals = rentalService.findOverdueRentals();
         return ResponseEntity.ok(overdueRentals);
     }
-    // надо заполнить бд для прочека
+    // +-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/mark-overdue")
     public ResponseEntity<Void> markOverdueRentals() {
         rentalService.markOverdueRentalsAsLate();
         return ResponseEntity.noContent().build();
     }
     // +
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user-history/{userId}")
     public ResponseEntity<List<RentalUserHistoryResponseDTO>> getUserRentalHistory(
             @PathVariable int userId) {
@@ -61,6 +67,7 @@ public class RentalController {
         return ResponseEntity.ok(history);
     }
     // +
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/copy-history/{copyId}")
     public ResponseEntity<List<RentalCopyStoryResponseDTO>> getCopyRentalHistory(
             @PathVariable int copyId) {

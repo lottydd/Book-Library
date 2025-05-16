@@ -12,9 +12,12 @@ import com.example.booklibrary.model.Role;
 import com.example.booklibrary.model.User;
 import com.example.booklibrary.util.RentalStatus;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +33,15 @@ public class UserService {
     private final UserDAO userDAO;
     private final RoleDAO roleDAO;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Autowired
-    public UserService(UserDAO userDAO, RoleDAO roleDAO, UserMapper userMapper) {
+    public UserService(UserDAO userDAO, RoleDAO roleDAO, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userDAO = userDAO;
         this.roleDAO = roleDAO;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -55,7 +61,7 @@ public class UserService {
 
     private boolean validationRoleDuplication(User user, String roleName) {
         return user.getRoles().stream()
-                .anyMatch(existingRole -> existingRole.getRoleName().equalsIgnoreCase(roleName));
+                .anyMatch(existingRole -> existingRole.getName().equalsIgnoreCase(roleName));
     }
 
     @Transactional
@@ -74,7 +80,7 @@ public class UserService {
                     return new EntityNotFoundException("Role not found");
                 });
 
-        if (validationRoleDuplication(user, role.getRoleName())) {
+        if (validationRoleDuplication(user, role.getName())) {
             logger.warn("Пользователь уже имеет роль. UserID: {}, Role: {}", userId, roleName);
             throw new IllegalArgumentException("Пользователь уже имеет такую роль");
         }
@@ -110,9 +116,6 @@ public class UserService {
 
         return userMapper.toDto(user);
     }
-
-
-
 
     @Transactional
     public UserDTO updateUser(int userId, UserUpdateDTO userUpdateDTO) {
@@ -212,7 +215,11 @@ public class UserService {
                 });
         logger.debug("Данные обновления валидны");
     }
-
-
-
+    @Transactional(readOnly = true)
+    public void changePassword(int userId, String newPassword) {
+        User user = userDAO.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userDAO.update(user);
+    }
 }
