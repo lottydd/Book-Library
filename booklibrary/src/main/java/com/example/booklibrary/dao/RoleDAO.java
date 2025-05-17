@@ -31,7 +31,7 @@ public class RoleDAO extends BaseDAO<Role, Integer> {
             return Optional.of(role);
 
         } catch (NoResultException e) {
-            logger.info("Роль {} не найдена", roleName);
+            logger.error("Роль {} не найдена", roleName);
             return Optional.empty();
         }
     }

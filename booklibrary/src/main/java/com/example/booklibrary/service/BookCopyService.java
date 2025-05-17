@@ -102,14 +102,11 @@ public class BookCopyService {
         bookCopyDAO.deleteByBookId(dto.getId());
     }
 
-    @Transactional
-    public boolean hasRentedCopies(RequestIdDTO dto) {
-        return bookCopyDAO.existsByBookIdAndStatus(dto.getId(), CopyStatus.RENTED);
-    }
-
     @Transactional(readOnly = true)
     public List<BookCopyDTO> getRentedCopies(RequestIdDTO dto) {
+        logger.debug("Попытка получения арендованных копий книги {}", dto.getId());
         List<BookCopy> rentedCopies = bookCopyDAO.findRentedCopiesByBookId(dto.getId());
+        logger.debug("Найдено {} арендованных копий книги ", rentedCopies.size());
         return rentedCopies.stream()
                 .map(bookCopyMapper::toDto)
                 .toList();
@@ -117,9 +114,11 @@ public class BookCopyService {
 
     @Transactional
     private BookCopy getCopyById(int copyId) {
+        logger.debug("Поиск копии книги по ID: {}", copyId);
         return bookCopyDAO.findById(copyId)
-                .orElseThrow(() -> new EntityNotFoundException("Копия не найдена"));
+                .orElseThrow(() -> {
+                    logger.error("Копия книги с ID {} не найдена", copyId);
+                    return new EntityNotFoundException("Копия не найдена");
+                });
     }
-
-
 }

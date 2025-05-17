@@ -45,7 +45,7 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
             }
             return result;
         } catch (NoResultException e) {
-            logger.debug("Активная аренда не найдена для копии ID: {}", copyId);
+            logger.error("Активная аренда не найдена для копии ID: {}", copyId);
             return Optional.empty();
         }
     }
@@ -63,20 +63,25 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
         return result;
     }
 
-
     public List<Rental> findByUserId(int userId) {
-        return entityManager.createQuery(
+        logger.debug("Поиск аренд пользователя");
+        List<Rental> result = entityManager.createQuery(
                         "SELECT r FROM Rental r WHERE " +
-                                "r.user.id = :userId", Rental.class)  //Вснуть сюда сортировку либо  отсортировать уже в методе сервиса
+                                "r.user.id = :userId", Rental.class)
                 .setParameter("userId", userId)
                 .getResultList();
+        logger.info("Найдено {} аренд пользователя ", result.size());
+        return  result;
     }
 
     public List<Rental> findByCopyId(int copyId) {
-        return entityManager.createQuery(
+        logger.debug("Поиск аренд для копии");
+        List<Rental> result =  entityManager.createQuery(
                         "SELECT r FROM Rental r WHERE " +
-                                "r.copy.copyId = :copyId", Rental.class)  //Вснуть сюда сортировку либо  отсортировать уже в методе сервиса
+                                "r.copy.copyId = :copyId", Rental.class)
                 .setParameter("copyId", copyId)
                 .getResultList();
+        logger.info("Найдено {} аренд копии", result.size());
+        return result;
     }
 }

@@ -144,10 +144,6 @@ public class CatalogService {
         return catalogMapper.toTreeDtoList(fullTree);
     }
 
-
-
-
-
     @Transactional
     private List<Catalog> fetchChildrenRecursively(List<Catalog> catalogs) {
         catalogs.forEach(catalog -> {
@@ -167,7 +163,6 @@ public class CatalogService {
                 deleteCatalogRecursive(child);
             }
         }
-
         Catalog parent = catalog.getParent();
         if (parent != null) {
             parent.getChildren().remove(catalog);

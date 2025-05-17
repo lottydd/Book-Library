@@ -173,7 +173,6 @@ public class UserService {
                 }));
     }
 
-
     @Transactional(readOnly = true)
     private void validateRegistrationData(UserCreateDTO dto) {
         logger.debug("Валидация данных регистрации пользователя");

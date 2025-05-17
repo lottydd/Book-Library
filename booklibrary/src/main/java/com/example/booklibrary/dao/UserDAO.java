@@ -33,7 +33,7 @@ public class UserDAO extends BaseDAO<User, Integer> {
                     user.getId());
             return Optional.of(user);
         } catch (NoResultException e) {
-            logger.debug("Пользователь с email {} не найден", email);
+            logger.error("Пользователь с email {} не найден", email);
             return Optional.empty();
         }
     }
@@ -51,7 +51,7 @@ public class UserDAO extends BaseDAO<User, Integer> {
                     user.getId());
             return Optional.of(user);
         } catch (NoResultException e) {
-            logger.debug("Пользователь с username {} не найден", username);
+            logger.error("Пользователь с username {} не найден", username);
             return Optional.empty();
         }
     }

@@ -37,7 +37,7 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
         if (exists) {
             logger.info("Найдены копии книги ID {} со статусом {}", bookId, status);
         } else {
-            logger.debug("Не найдено копий книги ID {} со статусом {}", bookId, status);
+            logger.info("Не найдено копий книги ID {} со статусом {}", bookId, status);
         }
         return exists;
     }
@@ -54,33 +54,10 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
         if (!result.isEmpty()) {
             logger.info("Найдены {} арендованных копий книги ID {}", result.size(), bookId);
         } else {
-            logger.debug("Арендованные копии книги ID {} не найдены", bookId);
+            logger.info("Арендованные копии книги ID {} не найдены", bookId);
         }
 
         return result;
     }
-
-
-    public List<BookCopy> findAllByBookId(int bookId) {
-        return entityManager.createQuery(
-                        "SELECT c FROM BookCopy c WHERE c.book.id = :bookId", BookCopy.class)
-                .setParameter("bookId", bookId)
-                .getResultList();
-    }
-
-    public long countByBookId(int bookId) {
-        return entityManager.createQuery(
-                        "SELECT COUNT(c) FROM BookCopy c WHERE c.book.id = :bookId", Long.class)
-                .setParameter("bookId", bookId)
-                .getSingleResult();
-    }
-
-    public List<BookCopy> findByStatus(CopyStatus status) {
-        return entityManager.createQuery(
-                        "SELECT c FROM BookCopy c WHERE c.status = :status", BookCopy.class)
-                .setParameter("status", status)
-                .getResultList();
-    }
-
 
 }

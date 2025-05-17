@@ -37,7 +37,7 @@ public class RentalController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(rentalDTO);
     }
-    //добавить проверку чтобы был метч того кто возвращает  +
+    //+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{copyId}/return")
     public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable Integer copyId) {
