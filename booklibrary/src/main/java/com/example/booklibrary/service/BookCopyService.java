@@ -80,7 +80,6 @@ public class BookCopyService {
                 newBook.getBookTitle());
     }
 
-    //ADMIN
     @Transactional
     public BookCopyDTO updateCopyStatus(BookCopyUpdateDTO dto) {
         logger.debug("Попытка обновления статуса {} копии  {}", dto.getStatus(), dto.getCopyId());
@@ -99,17 +98,20 @@ public class BookCopyService {
 
     @Transactional
     public void deleteBookCopies(RequestIdDTO dto) {
+        logger.debug("Проверка возможности удаления копий книги с ID {}", dto.getId());
+        List<BookCopy> nonDeletableCopies = bookCopyDAO.findNonDeletableCopiesByBookId(dto.getId());
+        if (!nonDeletableCopies.isEmpty()) {
+            logger.warn("Удаление невозможно — найдены арендованные или недоступные копии книги. BookID: {}", dto.getId());
+            throw new IllegalStateException("Невозможно удалить — некоторые копии книги сейчас арендованы или недоступны");
+        }
         bookCopyDAO.deleteByBookId(dto.getId());
-    }
-
-    @Transactional
-    public boolean hasRentedCopies(RequestIdDTO dto) {
-        return bookCopyDAO.existsByBookIdAndStatus(dto.getId(), CopyStatus.RENTED);
     }
 
     @Transactional(readOnly = true)
     public List<BookCopyDTO> getRentedCopies(RequestIdDTO dto) {
+        logger.debug("Попытка получения арендованных копий книги {}", dto.getId());
         List<BookCopy> rentedCopies = bookCopyDAO.findRentedCopiesByBookId(dto.getId());
+        logger.debug("Найдено {} арендованных копий книги ", rentedCopies.size());
         return rentedCopies.stream()
                 .map(bookCopyMapper::toDto)
                 .toList();
@@ -117,9 +119,11 @@ public class BookCopyService {
 
     @Transactional
     private BookCopy getCopyById(int copyId) {
+        logger.debug("Поиск копии книги по ID: {}", copyId);
         return bookCopyDAO.findById(copyId)
-                .orElseThrow(() -> new EntityNotFoundException("Копия не найдена"));
+                .orElseThrow(() -> {
+                    logger.error("Копия книги с ID {} не найдена", copyId);
+                    return new EntityNotFoundException("Копия не найдена");
+                });
     }
-
-
 }

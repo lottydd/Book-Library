@@ -11,6 +11,7 @@ import com.example.booklibrary.service.CatalogService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,14 +26,15 @@ public class CatalogController {
         this.catalogService = catalogService;
     }
 
-    //+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CatalogCreateResponseDTO> createCatalog
             (@RequestBody @Valid CatalogCreateDTO dto) {
         CatalogCreateResponseDTO response = catalogService.createCatalog(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    //+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{targetCatalogId}/books")
     public ResponseEntity<CatalogAddBookResponseDTO> addBookToCatalog(
             @PathVariable Integer targetCatalogId,
@@ -45,14 +47,15 @@ public class CatalogController {
         CatalogAddBookResponseDTO response = catalogService.addBookToCatalog(dto);
         return ResponseEntity.ok(response);
     }
-    // +
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCatalog(@PathVariable Integer id) {
         catalogService.deleteCatalog(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
 
-    //+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{catalogId}/books/{bookId}")
     public ResponseEntity<Void> removeBookFromCatalog(@PathVariable Integer catalogId,
                                                       @PathVariable Integer bookId) {
@@ -60,14 +63,14 @@ public class CatalogController {
         return ResponseEntity.noContent().build();
     }
 
-    //+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/tree")
     public ResponseEntity<List<CatalogTreeDTO>> getCatalogTree() {
         List<CatalogTreeDTO> tree = catalogService.getCatalogTree();
         return ResponseEntity.ok(tree);
     }
 
-    // +
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{catalogId}/books")
     public ResponseEntity<List<CatalogBooksResponseDTO>> getBooksFromCatalog(@PathVariable Integer catalogId){
         List<CatalogBooksResponseDTO> catalogBooks = catalogService.getCatalogBooks(catalogId);

@@ -58,13 +58,13 @@ public class CatalogService {
                     });
             catalog.setParent(parent);
 
-            catalogDAO.save(catalog); // Явное сохранение
-            parent.getChildren().add(catalog); //  Обновляем в памяти для согласованности, не обязательно
+            catalogDAO.save(catalog);
+            parent.getChildren().add(catalog);
         } else {
-            catalogDAO.save(catalog); // Для корневых
+            catalogDAO.save(catalog);
         }
 
-        catalogDAO.flush(); // Синхронизация, чтобы получить ID
+        catalogDAO.flush();
         logger.info("Каталог успешно создан. ID: {}", catalog.getId());
 
         return catalogMapper.toCatalogCreateResponseDTO(catalog);
@@ -144,10 +144,6 @@ public class CatalogService {
         return catalogMapper.toTreeDtoList(fullTree);
     }
 
-
-
-
-
     @Transactional
     private List<Catalog> fetchChildrenRecursively(List<Catalog> catalogs) {
         catalogs.forEach(catalog -> {
@@ -167,7 +163,6 @@ public class CatalogService {
                 deleteCatalogRecursive(child);
             }
         }
-
         Catalog parent = catalog.getParent();
         if (parent != null) {
             parent.getChildren().remove(catalog);
@@ -175,7 +170,7 @@ public class CatalogService {
         }
 
         catalogDAO.delete(catalog.getId());
-        logger.info("Каталог ID {} удален", catalog.getId());
+        logger.info("Каталог ID  {} удален", catalog.getId());
     }
 
     @Transactional(readOnly = true)

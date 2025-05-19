@@ -34,7 +34,7 @@ public class CatalogDAO extends BaseDAO<Catalog, Integer> {
                 .setParameter("parentId", parentId)
                 .getResultList();
         if (catalogs.isEmpty()) {
-            logger.debug("Не найдено каталогов для parentId: {}", parentId);
+            logger.info("Не найдено каталогов для parentId: {}", parentId);
         } else {
             logger.info("Найдено {} каталогов для parentId: {}", catalogs.size(), parentId);
         }

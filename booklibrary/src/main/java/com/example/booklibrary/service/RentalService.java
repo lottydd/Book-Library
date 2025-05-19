@@ -3,7 +3,6 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.RentalDAO;
 import com.example.booklibrary.dao.UserDAO;
-import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.rental.RentalCopyDTO;
 import com.example.booklibrary.dto.response.rental.RentalDTO;
 import com.example.booklibrary.dto.response.rental.RentalCopyStoryResponseDTO;
@@ -79,31 +78,37 @@ public class RentalService {
     }
 
     @Transactional
-    public RentalDTO returnCopy(RequestIdDTO dto) {
-        logger.debug("Попытка возврата копии книги. CopyID: {}", dto.getId());
+    public RentalDTO returnCopy(int userId, int copyId) {
+        logger.debug("Попытка возврата копии книги. CopyID: {}", copyId);
 
-        BookCopy copy = bookCopyDAO.findById(dto.getId())
+        BookCopy copy = bookCopyDAO.findById(copyId)
                 .orElseThrow(() -> {
-                    logger.warn("Копия книги не найдена. CopyID: {}", dto.getId());
+                    logger.warn("Копия книги не найдена. CopyID: {}", copyId);
                     return new EntityNotFoundException("Book copy not found");
                 });
 
-        Rental activeRental = rentalDAO.findActiveRentalByCopyId(dto.getId())
+        Rental activeRental = rentalDAO.findActiveRentalByCopyId(copyId)
                 .orElseThrow(() -> {
-                    logger.warn("Активная аренда не найдена для копии. CopyID: {}", dto.getId());
+                    logger.warn("Активная аренда не найдена для копии. CopyID: {}", copyId);
                     return new IllegalStateException("Нет активных аренд для этой копии");
                 });
+        if (activeRental.getUser().getId() != userId) {
+            logger.warn("Попытка возврата копии другим пользователем. UserID: {}, RentalUserID: {}",
+                    userId, activeRental.getUser().getId());
+            throw new SecurityException("Вы не можете вернуть копию, арендованную другим пользователем");
+        }
+
 
         copy.setStatus(CopyStatus.AVAILABLE);
         bookCopyDAO.update(copy);
-        logger.debug("Статус копии изменен на AVAILABLE. CopyID: {}", dto.getId());
+        logger.debug("Статус копии изменен на AVAILABLE. CopyID: {}", copyId);
 
         activeRental.setReturnDate(LocalDateTime.now());
         activeRental.setStatus(RentalStatus.RETURNED);
         Rental updatedRental = rentalDAO.update(activeRental);
 
         logger.info("Копия успешно возвращена. RentalID: {}, CopyID: {}",
-                updatedRental.getId(), dto.getId());
+                updatedRental.getId(), copyId);
         return rentalMapper.toDto(updatedRental);
     }
 
@@ -117,7 +122,6 @@ public class RentalService {
                 .toList();
     }
 
-    //Оставить как админский метод
     @Transactional
     public void markOverdueRentalsAsLate() {
         logger.debug("Пометка просроченных аренд как LATE");
@@ -147,7 +151,7 @@ public class RentalService {
     }
 
     private void validateCopyAvailableForRent(BookCopy copy) {
-        logger.debug("Проверка доступности копии для аренды. CopyID: {}", copy.getCopyId());
+        logger.info("Проверка доступности копии для аренды. CopyID: {}", copy.getCopyId());
         if (copy.getStatus() != CopyStatus.AVAILABLE) {
             logger.warn("Копия недоступна для аренды. CopyID: {}, Status: {}",
                     copy.getCopyId(), copy.getStatus());

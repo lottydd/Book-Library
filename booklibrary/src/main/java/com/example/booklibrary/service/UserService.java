@@ -15,6 +15,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +32,15 @@ public class UserService {
     private final UserDAO userDAO;
     private final RoleDAO roleDAO;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Autowired
-    public UserService(UserDAO userDAO, RoleDAO roleDAO, UserMapper userMapper) {
+    public UserService(UserDAO userDAO, RoleDAO roleDAO, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userDAO = userDAO;
         this.roleDAO = roleDAO;
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -45,8 +50,9 @@ public class UserService {
 
         validateRegistrationData(userCreateDTO);
         User user = userMapper.toEntity(userCreateDTO);
+        user.setPassword(passwordEncoder.encode(userCreateDTO.getPassword()));
         User savedUser = userDAO.save(user);
-        assignRoleToUser(savedUser.getId(), "USER");
+        assignRoleToUser(savedUser.getId(), "ROLE_USER");
 
         logger.info("Пользователь успешно зарегистрирован. UserID: {}, Email: {}",
                 savedUser.getId(), savedUser.getEmail());
@@ -111,9 +117,6 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-
-
-
     @Transactional
     public UserDTO updateUser(int userId, UserUpdateDTO userUpdateDTO) {
         logger.debug("Попытка обновления пользователя. UserID: {}", userId);
@@ -170,7 +173,6 @@ public class UserService {
                 }));
     }
 
-
     @Transactional(readOnly = true)
     private void validateRegistrationData(UserCreateDTO dto) {
         logger.debug("Валидация данных регистрации пользователя");
@@ -212,7 +214,13 @@ public class UserService {
                 });
         logger.debug("Данные обновления валидны");
     }
-
-
-
+    @Transactional
+    public void changePassword(int userId, String newPassword) {
+        logger.debug("Попытка смены пароля пользователя");
+        User user = userDAO.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        logger.info("Пользователь с ID {} найден",user.getId() );
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userDAO.update(user);
+    }
 }

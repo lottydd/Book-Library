@@ -19,25 +19,6 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
         super(BookCatalog.class);
     }
 
-    public List<BookCatalog> findByBookId(int bookId) {
-        logger.debug("Поиск списка каталогов в которых содержится книга с ID {}", bookId);
-        List<BookCatalog> resultList = entityManager.createQuery(
-                        "SELECT bc FROM BookCatalog bc WHERE bc.book.id = :bookId",
-                        BookCatalog.class)
-                .setParameter("bookId", bookId)
-                .getResultList();
-        logger.info("Найдено {} каталогов в которых содержится книга с ID {}", resultList.size(), bookId);
-        return resultList;
-    }
-
-    public void deleteAll(List<BookCatalog> bookCatalogs) {
-        logger.debug("Удаление всех записей из списка");
-        entityManager.createQuery(
-                        "DELETE FROM BookCatalog bc WHERE bc IN :bookCatalogs")
-                .setParameter("bookCatalogs", bookCatalogs)
-                .executeUpdate();
-        logger.info("Удалено  {} записей", bookCatalogs.size());
-    }
 
     public boolean existsByBookAndCatalog(Book book, Catalog catalog) {
         logger.debug("Проверка существования {} в Каталоге {}"
@@ -51,55 +32,17 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
                 .setParameter("catalog", catalog)
                 .getSingleResult();
         if (count == 0) {
-            logger.debug("Книга {} не существует в Каталоге {}", book.getBookTitle(), catalog.getName());
-        }
-        else {
+            logger.info("Книга {} не существует в Каталоге {}", book.getBookTitle(), catalog.getName());
+        } else {
             logger.info("Книга {}  существует в Каталоге {}", book.getBookTitle(), catalog.getName());
 
         }
         return count > 0;
     }
 
-    public List<Integer> findCatalogIdsByBookId(int bookId) {
-        logger.debug("Получение ID каталогов для книги {}", bookId);
-        return entityManager.createQuery(
-                        "SELECT bc.catalog.id FROM BookCatalog bc WHERE bc.book.id = :bookId",
-                        Integer.class)
-                .setParameter("bookId", bookId)
-                .getResultList();
-    }
-
-    public void deleteNotInCatalogs(int bookId, List<Integer> catalogIds) {
-        logger.debug("Удаление старых каталогов книги {}", bookId);
-        entityManager.createQuery(
-                        "DELETE FROM BookCatalog bc WHERE bc.book.id = :bookId AND bc.catalog.id NOT IN :catalogIds")
-                .setParameter("bookId", bookId)
-                .setParameter("catalogIds", catalogIds)
-                .executeUpdate();
-    }
-
-    public void addToCatalogs(int bookId, List<Integer> catalogIds) {
-        logger.debug("Добавление книги {} в {} каталогов", bookId, catalogIds.size());
-
-        Book book = entityManager.find(Book.class, bookId);
-        if (book == null) {
-            throw new EntityNotFoundException("Book not found with id: " + bookId);
-        }
-
-        for (Integer catalogId : catalogIds) {
-            Catalog catalog = entityManager.find(Catalog.class, catalogId);
-            if (catalog == null) {
-                throw new EntityNotFoundException("Catalog not found with id: " + catalogId);
-            }
-
-            BookCatalog bc = new BookCatalog();
-            bc.setBook(book);
-            bc.setCatalog(catalog);
-            entityManager.persist(bc);
-        }
-    }
 
     public boolean existsByCatalogIdAndBookId(int catalogId, int bookId) {
+        logger.debug("Проверка существования книги в каталоге");
         String ql = "SELECT count(bc) FROM BookCatalog bc WHERE bc.catalog.id = :catalogId AND bc.book.id = :bookId";
         Long count = entityManager.createQuery(ql, Long.class)
                 .setParameter("catalogId", catalogId)
@@ -109,12 +52,14 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
     }
 
     public void deleteByCatalogIdAndBookId(int catalogId, int bookId) {
+        logger.debug("Удаление записей связей книга-каталог");
+
         String ql = "DELETE FROM BookCatalog bc WHERE bc.catalog.id = :catalogId AND bc.book.id = :bookId";
         int deleted = entityManager.createQuery(ql)
                 .setParameter("catalogId", catalogId)
                 .setParameter("bookId", bookId)
                 .executeUpdate();
-        logger.debug("Удалено {} записей связи книга-каталог", deleted);
+        logger.info("Удалено {} записей связи книга-каталог", deleted);
     }
 
 
@@ -138,6 +83,5 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
                 .setParameter("catalogId", catalogId)
                 .getResultList();
     }
-
 }
 

@@ -35,7 +35,7 @@ public class BookDAO extends BaseDAO<Book, Integer> {
             return Optional.of(book);
 
         } catch (NoResultException e) {
-            logger.info("Книга с ID: {} не найдена", bookId);
+            logger.error("Книга с ID: {} не найдена", bookId);
             return Optional.empty();
         }
     }
@@ -48,9 +48,10 @@ public class BookDAO extends BaseDAO<Book, Integer> {
                             "SELECT b FROM Book b WHERE b.isbn = :isbn", Book.class)
                     .setParameter("isbn", isbn)
                     .getSingleResult();
+            logger.info("Книга с isbn {} найдена", isbn);
             return Optional.of(book);
         } catch (NoResultException e) {
-            logger.info("Книга с isbn {} не найдена", isbn);
+            logger.error("Книга с isbn {} не найдена", isbn);
             return Optional.empty();
         }
     }

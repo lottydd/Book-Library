@@ -14,7 +14,6 @@ import java.util.Optional;
 public abstract class BaseDAO<T, ID> implements GenericDAO<T, ID> {
 
     private final Class<T> entityClass;
-
     private static final Logger logger = LoggerFactory.getLogger(BaseDAO.class);
 
     @PersistenceContext
@@ -27,12 +26,12 @@ public abstract class BaseDAO<T, ID> implements GenericDAO<T, ID> {
     @Transactional(readOnly = true)
     @Override
     public Optional<T> findById(ID id) {
-        logger.debug("Попытка поиска сущности {} с ID: {}", entityClass.getSimpleName(), id);
+        logger.debug("Поиск сущности {} с ID: {}", entityClass.getSimpleName(), id);
         T entity = entityManager.find(entityClass, id);
         if (entity == null) {
-            logger.info("Сущность {} с ID {} не найдена", entityClass.getSimpleName(), id);
+            logger.debug("Сущность {} с ID {} не найдена", entityClass.getSimpleName(), id);
         } else {
-            logger.debug("Сущность {} с ID {} успешно найдена", entityClass.getSimpleName(), id);
+            logger.debug("Сущность {} с ID {} найдена", entityClass.getSimpleName(), id);
         }
         return Optional.ofNullable(entity);
     }
@@ -40,59 +39,77 @@ public abstract class BaseDAO<T, ID> implements GenericDAO<T, ID> {
     @Transactional(readOnly = true)
     @Override
     public List<T> findAll() {
-        logger.debug("Попытка получения всех записей сущности {}", entityClass.getSimpleName());
+        logger.debug("Получение всех записей сущности {}", entityClass.getSimpleName());
         String jpql = "SELECT e FROM " + entityClass.getSimpleName() + " e";
         List<T> result = entityManager.createQuery(jpql, entityClass).getResultList();
-        logger.info("Найдено {} записей сущности {}", result.size(), entityClass.getSimpleName());
+        if (result.isEmpty()) {
+            logger.warn("Не найдено записей сущности {}", entityClass.getSimpleName());
+        } else {
+            logger.debug("Найдено {} записей сущности {}", result.size(), entityClass.getSimpleName());
+        }
         return result;
     }
 
     @Transactional
     @Override
     public T save(T entity) {
-        logger.debug("Сохранение сущности {}", entityClass.getSimpleName());
-        entityManager.persist(entity);
-        logger.info("Сущность {} сохранена", entityClass.getSimpleName());
-        return entity;
+        try {
+            logger.debug("Сохранение сущности {}", entityClass.getSimpleName());
+            entityManager.persist(entity);
+            logger.info("Сущность {} сохранена", entityClass.getSimpleName());
+            return entity;
+        } catch (Exception e) {
+            logger.error("Ошибка при сохранении сущности {}", entityClass.getSimpleName(), e);
+            throw e;
+        }
     }
 
     @Transactional
     @Override
     public T update(T entity) {
-        logger.debug("Обновление сущности {}", entityClass.getSimpleName());
-        T updatedEntity = entityManager.merge(entity);
-        logger.info("Сущность {} обновлена", entityClass.getSimpleName());
-        return updatedEntity;
+        try {
+            logger.debug("Обновление сущности {}", entityClass.getSimpleName());
+            T updatedEntity = entityManager.merge(entity);
+            logger.info("Сущность {} обновлена", entityClass.getSimpleName());
+            return updatedEntity;
+        } catch (Exception e) {
+            logger.error("Ошибка при обновлении сущности {}", entityClass.getSimpleName(), e);
+            throw e;
+        }
     }
 
     @Transactional
     @Override
     public void delete(ID id) {
-        logger.debug("Попытка удаление сущности {} ", entityClass.getSimpleName());
+        logger.debug("Удаление сущности {} с ID {}", entityClass.getSimpleName(), id);
         T entity = entityManager.find(entityClass, id);
         if (entity != null) {
             entityManager.remove(entity);
-            logger.info("Сущность {} удалена", entityClass.getSimpleName());
+            logger.info("Сущность {} с ID {} удалена", entityClass.getSimpleName(), id);
         } else {
-            logger.warn("Сущность {} для удаления не найдена", entityClass.getSimpleName());
+            logger.error("Попытка удаления несуществующей сущности {} с ID {}",
+                    entityClass.getSimpleName(), id);
         }
     }
-
 
     @Transactional
     @Override
     public void saveAll(List<T> entities) {
-        logger.debug("Пакетное сохранение {} сущностей {}", entities.size(), entityClass.getSimpleName());
-        entities.forEach(entityManager::persist);
-        logger.info("Сохранено {} сущностей {}", entities.size(), entityClass.getSimpleName());
+        try {
+            logger.debug("Пакетное сохранение {} сущностей {}", entities.size(), entityClass.getSimpleName());
+            entities.forEach(entityManager::persist);
+            logger.info("Сохранено {} сущностей {}", entities.size(), entityClass.getSimpleName());
+        } catch (Exception e) {
+            logger.error("Ошибка при пакетном сохранении сущностей {}", entityClass.getSimpleName(), e);
+            throw e;
+        }
     }
+
     @Transactional
     @Override
     public void flush() {
-        logger.debug("Вызов flush() для сущности {}", entityClass.getSimpleName());
+        logger.debug("Синхронизация контекста с БД для сущности {}", entityClass.getSimpleName());
         entityManager.flush();
         logger.debug("Синхронизация с БД выполнена");
     }
-
-
 }

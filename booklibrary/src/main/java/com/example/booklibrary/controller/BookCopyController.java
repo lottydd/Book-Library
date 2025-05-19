@@ -8,6 +8,7 @@ import com.example.booklibrary.service.BookCopyService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,20 +23,22 @@ public class BookCopyController {
         this.bookCopyService = bookCopyService;
     }
 
-    //+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
+
     public ResponseEntity<Void> addCopies(@RequestBody @Valid BookAddCopyDTO dto) {
         bookCopyService.addCopies(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    //+
+
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/book/{bookId}")
     public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));
         return ResponseEntity.noContent().build();
     }
 
-    //+
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/status")
     public ResponseEntity<BookCopyDTO> updateCopyStatus(
             @RequestBody @Valid BookCopyUpdateDTO dto) {
@@ -43,7 +46,7 @@ public class BookCopyController {
         return ResponseEntity.ok(updatedCopy);
     }
 
-    //+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/has-rented/{bookId}")
     public ResponseEntity<List<BookCopyDTO>> rentedCopiesInfo(@PathVariable Integer bookId) {
         List<BookCopyDTO> rentedCopies = bookCopyService.getRentedCopies(new RequestIdDTO(bookId));
