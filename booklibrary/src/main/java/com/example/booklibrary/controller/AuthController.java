@@ -5,6 +5,7 @@ import com.example.booklibrary.dto.response.security.AuthResponseDTO;
 import com.example.booklibrary.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthenticationManager authManager;
@@ -30,13 +33,25 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO request) {
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+        try {
+            Authentication auth = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
 
-        UserDetails user = (UserDetails) authentication.getPrincipal();
-        String jwt = jwtUtil.generateToken(user);
+            UserDetails user = (UserDetails) auth.getPrincipal();
+            String token = jwtUtil.generateToken(user);
 
-        return ResponseEntity.ok(new AuthResponseDTO(jwt));
+            return ResponseEntity.ok(new AuthResponseDTO(token));
+
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("message", "Неверный логин или пароль"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("message", "Ошибка сервера: " + e.getMessage()));
+        }
     }
 }

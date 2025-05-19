@@ -12,7 +12,6 @@ import com.example.booklibrary.model.Role;
 import com.example.booklibrary.model.User;
 import com.example.booklibrary.util.RentalStatus;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +50,9 @@ public class UserService {
 
         validateRegistrationData(userCreateDTO);
         User user = userMapper.toEntity(userCreateDTO);
+        user.setPassword(passwordEncoder.encode(userCreateDTO.getPassword()));
         User savedUser = userDAO.save(user);
-        assignRoleToUser(savedUser.getId(), "USER");
+        assignRoleToUser(savedUser.getId(), "ROLE_USER");
 
         logger.info("Пользователь успешно зарегистрирован. UserID: {}, Email: {}",
                 savedUser.getId(), savedUser.getEmail());
@@ -61,7 +61,7 @@ public class UserService {
 
     private boolean validationRoleDuplication(User user, String roleName) {
         return user.getRoles().stream()
-                .anyMatch(existingRole -> existingRole.getName().equalsIgnoreCase(roleName));
+                .anyMatch(existingRole -> existingRole.getRoleName().equalsIgnoreCase(roleName));
     }
 
     @Transactional
@@ -80,7 +80,7 @@ public class UserService {
                     return new EntityNotFoundException("Role not found");
                 });
 
-        if (validationRoleDuplication(user, role.getName())) {
+        if (validationRoleDuplication(user, role.getRoleName())) {
             logger.warn("Пользователь уже имеет роль. UserID: {}, Role: {}", userId, roleName);
             throw new IllegalArgumentException("Пользователь уже имеет такую роль");
         }

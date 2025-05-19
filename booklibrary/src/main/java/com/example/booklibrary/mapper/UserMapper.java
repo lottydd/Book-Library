@@ -36,7 +36,7 @@ public interface UserMapper {
             return List.of();
         }
         return roles.stream()
-                .map(Role::getName)
+                .map(Role::getRoleName)
                 .collect(Collectors.toList());
     }
 }
