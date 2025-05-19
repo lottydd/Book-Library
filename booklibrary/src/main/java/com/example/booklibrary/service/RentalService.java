@@ -147,7 +147,7 @@ public class RentalService {
     }
 
     private void validateCopyAvailableForRent(BookCopy copy) {
-        logger.debug("Проверка доступности копии для аренды. CopyID: {}", copy.getCopyId());
+        logger.info("Проверка доступности копии для аренды. CopyID: {}", copy.getCopyId());
         if (copy.getStatus() != CopyStatus.AVAILABLE) {
             logger.warn("Копия недоступна для аренды. CopyID: {}, Status: {}",
                     copy.getCopyId(), copy.getStatus());

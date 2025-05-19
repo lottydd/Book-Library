@@ -16,6 +16,7 @@ import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
 import com.example.booklibrary.model.Catalog;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
