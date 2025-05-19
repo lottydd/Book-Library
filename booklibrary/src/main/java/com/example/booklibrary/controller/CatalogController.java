@@ -26,7 +26,6 @@ public class CatalogController {
         this.catalogService = catalogService;
     }
 
-    //+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CatalogCreateResponseDTO> createCatalog
@@ -34,7 +33,7 @@ public class CatalogController {
         CatalogCreateResponseDTO response = catalogService.createCatalog(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    //+
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{targetCatalogId}/books")
     public ResponseEntity<CatalogAddBookResponseDTO> addBookToCatalog(
@@ -48,7 +47,7 @@ public class CatalogController {
         CatalogAddBookResponseDTO response = catalogService.addBookToCatalog(dto);
         return ResponseEntity.ok(response);
     }
-    // +
+
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCatalog(@PathVariable Integer id) {
@@ -56,7 +55,6 @@ public class CatalogController {
         return ResponseEntity.noContent().build();
     }
 
-    //+
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{catalogId}/books/{bookId}")
     public ResponseEntity<Void> removeBookFromCatalog(@PathVariable Integer catalogId,
@@ -65,7 +63,6 @@ public class CatalogController {
         return ResponseEntity.noContent().build();
     }
 
-    //+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/tree")
     public ResponseEntity<List<CatalogTreeDTO>> getCatalogTree() {
@@ -73,7 +70,6 @@ public class CatalogController {
         return ResponseEntity.ok(tree);
     }
 
-    // +
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{catalogId}/books")
     public ResponseEntity<List<CatalogBooksResponseDTO>> getBooksFromCatalog(@PathVariable Integer catalogId){

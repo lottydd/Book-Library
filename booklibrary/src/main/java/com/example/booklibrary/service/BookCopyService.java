@@ -80,7 +80,6 @@ public class BookCopyService {
                 newBook.getBookTitle());
     }
 
-    //ADMIN
     @Transactional
     public BookCopyDTO updateCopyStatus(BookCopyUpdateDTO dto) {
         logger.debug("Попытка обновления статуса {} копии  {}", dto.getStatus(), dto.getCopyId());

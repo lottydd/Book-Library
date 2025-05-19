@@ -22,14 +22,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    //+
 
     @PostMapping("/register")
     public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
         UserDTO registeredUser = userService.registerUser(userCreateDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
     }
-    //+
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/assign-role/{roleName}")
     public ResponseEntity<UserDTO> assignRoleToUser(
@@ -38,7 +37,7 @@ public class UserController {
         UserDTO updatedUser = userService.assignRoleToUser(userId, roleName);
         return ResponseEntity.ok(updatedUser);
     }
-    //+
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/delete-role/{roleName}")
     public ResponseEntity<UserDTO> deleteRoleFromUser(
@@ -48,7 +47,6 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    // +
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/update/{userId}")
     public ResponseEntity<UserDTO> updateUser(
@@ -68,14 +66,13 @@ public class UserController {
     }
 
 
-    // +
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable int userId) {
         userService.deleteUser(new RequestIdDTO(userId));
         return ResponseEntity.noContent().build();
     }
-    //+
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("user-info/{userId}")
     public ResponseEntity<UserDTO> getUserInfo(@PathVariable int userId) {

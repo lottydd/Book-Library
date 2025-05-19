@@ -16,7 +16,6 @@ import com.example.booklibrary.model.Book;
 import com.example.booklibrary.model.BookCatalog;
 import com.example.booklibrary.model.Catalog;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +58,13 @@ public class CatalogService {
                     });
             catalog.setParent(parent);
 
-            catalogDAO.save(catalog); // Явное сохранение
-            parent.getChildren().add(catalog); //  Обновляем в памяти для согласованности, не обязательно
+            catalogDAO.save(catalog);
+            parent.getChildren().add(catalog);
         } else {
-            catalogDAO.save(catalog); // Для корневых
+            catalogDAO.save(catalog);
         }
 
-        catalogDAO.flush(); // Синхронизация, чтобы получить ID
+        catalogDAO.flush();
         logger.info("Каталог успешно создан. ID: {}", catalog.getId());
 
         return catalogMapper.toCatalogCreateResponseDTO(catalog);
@@ -171,7 +170,7 @@ public class CatalogService {
         }
 
         catalogDAO.delete(catalog.getId());
-        logger.info("Каталог ID {} удален", catalog.getId());
+        logger.info("Каталог ID  {} удален", catalog.getId());
     }
 
     @Transactional(readOnly = true)

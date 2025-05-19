@@ -3,7 +3,6 @@ package com.example.booklibrary.service;
 import com.example.booklibrary.dao.BookCopyDAO;
 import com.example.booklibrary.dao.RentalDAO;
 import com.example.booklibrary.dao.UserDAO;
-import com.example.booklibrary.dto.request.RequestIdDTO;
 import com.example.booklibrary.dto.request.rental.RentalCopyDTO;
 import com.example.booklibrary.dto.response.rental.RentalDTO;
 import com.example.booklibrary.dto.response.rental.RentalCopyStoryResponseDTO;
@@ -123,7 +122,6 @@ public class RentalService {
                 .toList();
     }
 
-    //Оставить как админский метод
     @Transactional
     public void markOverdueRentalsAsLate() {
         logger.debug("Пометка просроченных аренд как LATE");

@@ -23,7 +23,6 @@ public class BookCopyController {
         this.bookCopyService = bookCopyService;
     }
 
-    //+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
 
@@ -31,7 +30,7 @@ public class BookCopyController {
         bookCopyService.addCopies(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    //+
+
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/book/{bookId}")
     public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
@@ -39,7 +38,6 @@ public class BookCopyController {
         return ResponseEntity.noContent().build();
     }
 
-    //+
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/status")
     public ResponseEntity<BookCopyDTO> updateCopyStatus(
@@ -48,7 +46,6 @@ public class BookCopyController {
         return ResponseEntity.ok(updatedCopy);
     }
 
-    //+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/has-rented/{bookId}")
     public ResponseEntity<List<BookCopyDTO>> rentedCopiesInfo(@PathVariable Integer bookId) {

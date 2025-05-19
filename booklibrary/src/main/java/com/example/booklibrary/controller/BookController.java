@@ -22,7 +22,6 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    //+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<BookResponseDTO> createBook(@Valid @RequestBody BookCreateDTO bookCreateDTO) {
@@ -30,21 +29,19 @@ public class BookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //+
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping
     public ResponseEntity<BookResponseDTO> updateBook(@Valid @RequestBody BookUpdateDTO bookUpdateDTO) {
         BookResponseDTO response = bookService.updateBook(bookUpdateDTO);
         return ResponseEntity.ok(response);
     }
-    //+
+
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable int id) {
         bookService.deleteBook(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
-    //+
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
