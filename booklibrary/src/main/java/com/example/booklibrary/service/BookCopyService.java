@@ -99,6 +99,12 @@ public class BookCopyService {
 
     @Transactional
     public void deleteBookCopies(RequestIdDTO dto) {
+        logger.debug("Проверка возможности удаления копий книги с ID {}", dto.getId());
+        List<BookCopy> nonDeletableCopies = bookCopyDAO.findNonDeletableCopiesByBookId(dto.getId());
+        if (!nonDeletableCopies.isEmpty()) {
+            logger.warn("Удаление невозможно — найдены арендованные или недоступные копии книги. BookID: {}", dto.getId());
+            throw new IllegalStateException("Невозможно удалить — некоторые копии книги сейчас арендованы или недоступны");
+        }
         bookCopyDAO.deleteByBookId(dto.getId());
     }
 

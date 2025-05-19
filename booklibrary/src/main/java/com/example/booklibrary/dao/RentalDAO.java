@@ -27,7 +27,7 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
 
         try {
             Optional<Rental> result = entityManager.createQuery(
-                            "SELECT r FROM Rental r WHERE r.copy.id = :copyId " +
+                            "SELECT r FROM Rental r WHERE r.copy.copyId = :copyId " +
                                     "AND r.status IN :activeStatuses", Rental.class)
                     .setParameter("copyId", copyId)
                     .setParameter("activeStatuses", List.of(RentalStatus.RENTED, RentalStatus.LATE))

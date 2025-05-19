@@ -2,6 +2,7 @@ package com.example.booklibrary.dao;
 
 import com.example.booklibrary.model.BookCopy;
 import com.example.booklibrary.util.CopyStatus;
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -60,4 +61,11 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
         return result;
     }
 
+    public List<BookCopy> findNonDeletableCopiesByBookId(int bookId) {
+        return entityManager.createQuery(
+                        "SELECT c FROM BookCopy c WHERE c.book.id = :bookId AND c.status <> :availableStatus", BookCopy.class)
+                .setParameter("bookId", bookId)
+                .setParameter("availableStatus", CopyStatus.AVAILABLE)
+                .getResultList();
+    }
 }

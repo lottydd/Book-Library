@@ -2,6 +2,7 @@ package com.example.booklibrary.service;
 
 import com.example.booklibrary.dao.UserDAO;
 import com.example.booklibrary.model.User;
+import com.example.booklibrary.security.CustomUserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,8 @@ public class UserDetailsServiceImpl  implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
                 .collect(Collectors.toList());
 
-        return new org.springframework.security.core.userdetails.User(
+        return new CustomUserDetails(
+                user.getId(),
                 user.getUsername(),
                 user.getPassword(),
                 authorities

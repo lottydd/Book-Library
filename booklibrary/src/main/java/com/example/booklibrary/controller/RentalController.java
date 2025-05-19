@@ -5,8 +5,11 @@ import com.example.booklibrary.dto.request.rental.RentalCopyDTO;
 import com.example.booklibrary.dto.response.rental.RentalCopyStoryResponseDTO;
 import com.example.booklibrary.dto.response.rental.RentalLateResponseDTO;
 import com.example.booklibrary.dto.response.rental.RentalUserHistoryResponseDTO;
+import com.example.booklibrary.security.CustomUserDetails;
+import com.example.booklibrary.service.UserDetailsServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -39,9 +42,13 @@ public class RentalController {
     }
     //+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PutMapping("/{copyId}/return")
-    public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable Integer copyId) {
-        RentalDTO rentalDTO = rentalService.returnCopy(new RequestIdDTO(copyId));
+    @PutMapping("/return/{copyId}")
+    public ResponseEntity<RentalDTO> returnBookCopy(@PathVariable Integer copyId,
+                                                    Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        int userId = userDetails.getId();
+
+        RentalDTO rentalDTO = rentalService.returnCopy(userId, copyId);
         return ResponseEntity.ok(rentalDTO);
     }
     // +-
