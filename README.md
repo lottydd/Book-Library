@@ -59,6 +59,7 @@ docker-compose down
 - JPA + Hibernate
 - PostgreSQL
 - Docker Compose
+- JUnit5, Mockito
 - Swagger
 - Maven
 ---
