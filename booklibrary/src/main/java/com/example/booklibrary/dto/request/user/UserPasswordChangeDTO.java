@@ -1,6 +1,7 @@
 package com.example.booklibrary.dto.request.user;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,8 +12,10 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "DTO для изменения пароля пользователя")
 public class UserPasswordChangeDTO {
 
+    @Schema(description = "Новый пароль", example = "newSecurePassword456", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     private String newPassword;
 }

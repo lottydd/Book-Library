@@ -77,7 +77,7 @@ public class UserService {
         Role role = roleDAO.findRoleName(roleName)
                 .orElseThrow(() -> {
                     logger.warn("Роль не найдена. Role: {}", roleName);
-                    return new EntityNotFoundException("Role not found");
+                    return new EntityNotFoundException("Role not found " + roleName);
                 });
 
         if (validationRoleDuplication(user, role.getRoleName())) {

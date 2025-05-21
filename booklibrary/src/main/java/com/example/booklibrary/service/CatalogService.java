@@ -110,8 +110,6 @@ public class CatalogService {
         logger.info("Книга ID {} успешно удалена из каталога ID {}", bookId, catalogId);
     }
 
-
-
     @Transactional
     public void removeBookFromAllCatalogs(int bookId) {
         logger.debug("Удаление книги ID {} из всех каталогов", bookId);
