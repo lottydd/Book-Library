@@ -18,29 +18,12 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(BookCopyDAO.class);
 
-
     public void deleteByBookId(int bookId) {
         logger.info("Удаление всех копий книги с ID {}", bookId);
         int deletedCount = entityManager.createQuery("DELETE FROM BookCopy c WHERE c.book.id = :bookId")
                 .setParameter("bookId", bookId)
                 .executeUpdate();
         logger.info("Удалено {} копий книги с ID {}", deletedCount, bookId);
-    }
-
-    public boolean existsByBookIdAndStatus(int bookId, CopyStatus status) {
-        logger.info("Поиск книги с {} и статусом {}", bookId, status);
-       boolean exists= entityManager.createQuery(
-                        "SELECT COUNT(c) > 0 FROM BookCopy c " +
-                                "WHERE c.book.id = :bookId AND c.status = :status", Boolean.class)
-                .setParameter("bookId", bookId)
-                .setParameter("status", status)
-                .getSingleResult();
-        if (exists) {
-            logger.info("Найдены копии книги ID {} со статусом {}", bookId, status);
-        } else {
-            logger.info("Не найдено копий книги ID {} со статусом {}", bookId, status);
-        }
-        return exists;
     }
 
     public List<BookCopy> findRentedCopiesByBookId(int bookId) {

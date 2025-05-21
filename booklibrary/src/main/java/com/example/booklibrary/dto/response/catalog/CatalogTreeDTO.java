@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CatalogTreeDTO  {
+public class CatalogTreeDTO {
 
     @Schema(description = "ID каталога", example = "1")
     private Integer id;

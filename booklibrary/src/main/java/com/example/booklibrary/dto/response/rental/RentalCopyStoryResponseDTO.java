@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class RentalCopyStoryResponseDTO {
 
-
-
     @Schema(description = "ID аренды", example = "10")
     private Integer rentalId;
 

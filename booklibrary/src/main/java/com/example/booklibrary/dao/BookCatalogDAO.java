@@ -19,7 +19,6 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
         super(BookCatalog.class);
     }
 
-
     public boolean existsByBookAndCatalog(Book book, Catalog catalog) {
         logger.info("Проверка существования {} в Каталоге {}"
                 , book.getBookTitle(), catalog.getName());
@@ -39,7 +38,6 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
         }
         return count > 0;
     }
-
 
     public boolean existsByCatalogIdAndBookId(int catalogId, int bookId) {
         logger.info("Проверка существования книги в каталоге");
@@ -61,7 +59,6 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
                 .executeUpdate();
         logger.info("Удалено {} записей связи книга-каталог", deleted);
     }
-
 
     public int deleteByBookId(int bookId) {
         logger.info("Массовое удаление связей книги ID {}", bookId);

@@ -214,12 +214,13 @@ public class UserService {
                 });
         logger.info("Данные обновления валидны");
     }
+
     @Transactional
     public void changePassword(int userId, String newPassword) {
         logger.info("Попытка смены пароля пользователя");
         User user = userDAO.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        logger.info("Пользователь с ID {} найден",user.getId() );
+        logger.info("Пользователь с ID {} найден", user.getId());
         user.setPassword(passwordEncoder.encode(newPassword));
         userDAO.update(user);
     }

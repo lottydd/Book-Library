@@ -14,7 +14,7 @@ import lombok.*;
 @NoArgsConstructor
 public class CatalogCreateDTO {
 
-    @Schema(description = "Название каталога", example = "Фантастика", required = true)
+    @Schema(description = "Название каталога", example = "Фантастика", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Имя каталога не может быть пустым")
     private String name;
 

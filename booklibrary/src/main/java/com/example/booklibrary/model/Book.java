@@ -41,7 +41,7 @@ public class Book {
     @BatchSize(size = 50)
     private List<BookCopy> copies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch =  FetchType.LAZY)
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<BookCatalog> bookCatalogs = new ArrayList<>();

@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "DTO с информацией о пользователе")
-
 public class UserDTO {
     @Schema(description = "ID пользователя", example = "1")
     private Integer id;

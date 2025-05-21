@@ -50,7 +50,7 @@ public class CatalogController {
             @RequestBody @Valid CatalogAddBookDTO dto) {
         if (!targetCatalogId.equals(dto.getCatalogId())) {
             throw new IllegalArgumentException("ID Каталога в  пути и в теле запроса" +
-                    " должно совпадать " );
+                    " должно совпадать ");
         }
 
         CatalogAddBookResponseDTO response = catalogService.addBookToCatalog(dto);
@@ -88,7 +88,7 @@ public class CatalogController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{catalogId}/books")
     public ResponseEntity<List<CatalogBooksResponseDTO>> getBooksFromCatalog(
-            @Parameter(description = "ID каталога") @PathVariable Integer catalogId){
+            @Parameter(description = "ID каталога") @PathVariable Integer catalogId) {
         List<CatalogBooksResponseDTO> catalogBooks = catalogService.getCatalogBooks(catalogId);
         return ResponseEntity.ok(catalogBooks);
     }

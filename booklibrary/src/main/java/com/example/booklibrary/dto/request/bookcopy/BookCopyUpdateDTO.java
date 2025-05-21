@@ -15,11 +15,11 @@ import lombok.*;
 public class BookCopyUpdateDTO {
 
 
-  @Schema(description = "ID копии книги", example = "123", required = true)
-  @NotNull( message = "ID обновляемой копии не может быть равен нулю")
-  private Integer copyId;
+    @Schema(description = "ID копии книги", example = "123", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "ID обновляемой копии не может быть равен нулю")
+    private Integer copyId;
 
-  @Schema(description = "Новый статус копии книги", example = "RENTED", required = true)
-  @NotNull(message = "Статус обязателен")
-  private CopyStatus status;
+    @Schema(description = "Новый статус копии книги", example = "RENTED", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "Статус обязателен")
+    private CopyStatus status;
 }

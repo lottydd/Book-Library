@@ -1,7 +1,6 @@
 package com.example.booklibrary.config;
 
 
-
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

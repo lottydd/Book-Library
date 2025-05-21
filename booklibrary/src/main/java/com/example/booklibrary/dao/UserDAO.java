@@ -64,7 +64,7 @@ public class UserDAO extends BaseDAO<User, Integer> {
                 .setParameter("email", email)
                 .setParameter("username", username)
                 .getSingleResult();
-        if (count!=0){
+        if (count != 0) {
             logger.info("Пользователь с username {} и email{} существует", username, email);
         }
         return count > 0;

@@ -14,10 +14,9 @@ import lombok.Setter;
 
 
 public class AuthRequestDTO {
-    @Schema(description = "Имя пользователя", example = "admin")
-
+    @Schema(description = "Имя пользователя", example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
     private String username;
-    @Schema(description = "Пароль пользователя", example = "password123")
 
+    @Schema(description = "Пароль пользователя", example = "password123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 }

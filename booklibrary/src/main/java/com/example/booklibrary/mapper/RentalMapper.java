@@ -22,7 +22,6 @@ public interface RentalMapper {
     @Mapping(target = "rentalId", source = "id")
     @Mapping(target = "bookTitle", source = "copy.book.bookTitle")
     @Mapping(target = "status", expression = "java(rental.getStatus().name())")
-
     RentalDTO toDto(Rental rental);
 
     @Mapping(target = "userId", source = "user.id")
@@ -61,6 +60,7 @@ public interface RentalMapper {
                 .map(this::toUserHistoryDto)
                 .toList();
     }
+
     @Named("mapStatusToString")
     default String mapStatusToString(RentalStatus status) {
         return status != null ? status.name() : null;

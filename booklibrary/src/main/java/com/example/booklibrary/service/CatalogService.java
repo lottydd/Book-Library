@@ -69,6 +69,7 @@ public class CatalogService {
 
         return catalogMapper.toCatalogCreateResponseDTO(catalog);
     }
+
     @Transactional
     public CatalogAddBookResponseDTO addBookToCatalog(CatalogAddBookDTO dto) {
         logger.info("Добавление книги ID {} в каталог ID {}", dto.getBookId(), dto.getCatalogId());

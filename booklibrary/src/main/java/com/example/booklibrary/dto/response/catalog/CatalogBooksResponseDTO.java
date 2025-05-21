@@ -18,5 +18,4 @@ public class CatalogBooksResponseDTO {
 
     @Schema(description = "Автор книги", example = "Фрэнк Герберт")
     private String author;
-
 }

@@ -16,7 +16,6 @@ public class CatalogDAO extends BaseDAO<Catalog, Integer> {
         super(Catalog.class);
     }
 
-
     public List<Catalog> findRootCatalogs() {
         logger.info("Поиск корневых каталогов");
         return entityManager.createQuery(

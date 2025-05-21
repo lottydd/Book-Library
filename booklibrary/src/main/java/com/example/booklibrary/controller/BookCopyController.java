@@ -42,6 +42,7 @@ public class BookCopyController {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));
         return ResponseEntity.noContent().build();
     }
+
     @Operation(summary = "Обновить статус копии книги", description = "Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/status")

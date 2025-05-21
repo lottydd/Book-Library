@@ -14,11 +14,11 @@ import lombok.*;
 
 public class CatalogAddBookDTO {
 
-    @Schema(description = "ID каталога", example = "1", required = true)
+    @Schema(description = "ID каталога", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "ID каталога не может быть пустым")
     private int catalogId;
 
-    @Schema(description = "ID книги", example = "10", required = true)
+    @Schema(description = "ID книги", example = "10", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "ID книги не может быть пустым")
     private int bookId;
 }

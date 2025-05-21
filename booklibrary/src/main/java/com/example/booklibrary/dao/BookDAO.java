@@ -40,7 +40,6 @@ public class BookDAO extends BaseDAO<Book, Integer> {
         }
     }
 
-
     public Optional<Book> findByIsbn(String isbn) {
         logger.info("Поиск книги по ее isbn {}", isbn);
         try {
@@ -71,7 +70,5 @@ public class BookDAO extends BaseDAO<Book, Integer> {
         }
         return exists;
     }
-
-
 }
 

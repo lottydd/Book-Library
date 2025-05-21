@@ -71,12 +71,12 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
                 .setParameter("userId", userId)
                 .getResultList();
         logger.info("Найдено {} аренд пользователя ", result.size());
-        return  result;
+        return result;
     }
 
     public List<Rental> findByCopyId(int copyId) {
         logger.info("Поиск аренд для копии");
-        List<Rental> result =  entityManager.createQuery(
+        List<Rental> result = entityManager.createQuery(
                         "SELECT r FROM Rental r WHERE " +
                                 "r.copy.copyId = :copyId", Rental.class)
                 .setParameter("copyId", copyId)

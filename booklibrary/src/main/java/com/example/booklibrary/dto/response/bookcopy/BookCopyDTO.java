@@ -14,8 +14,10 @@ import lombok.*;
 public class BookCopyDTO {
     @Schema(description = "ID копии книги", example = "123")
     private int copyId;
+
     @Schema(description = "Статус копии книги", example = "AVAILABLE")
     private String status;
+
     @Schema(description = "Название книги", example = "Война и мир")
     private String bookTitle;
 }

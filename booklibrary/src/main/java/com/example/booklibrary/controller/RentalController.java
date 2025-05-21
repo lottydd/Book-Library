@@ -86,6 +86,7 @@ public class RentalController {
         List<RentalUserHistoryResponseDTO> history = rentalService.getUserRentalHistory(userId);
         return ResponseEntity.ok(history);
     }
+
     @Operation(summary = "История аренды копии книги", description = "Возвращает историю аренды по ID копии книги . Только для администратора")
 
     @PreAuthorize("hasRole('ADMIN')")

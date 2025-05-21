@@ -26,6 +26,7 @@ public class BookService {
     private final BookCopyService bookCopyService;
 
     private static final Logger logger = LoggerFactory.getLogger(BookService.class);
+
     @Autowired
     public BookService(BookDAO bookDAO, CatalogService catalogService, BookMapper bookMapper, BookCopyService bookCopyService) {
         this.bookDAO = bookDAO;
@@ -46,7 +47,7 @@ public class BookService {
         Book savedBook = bookDAO.save(book);
 
         logger.info("Добавление {} копий книги", dto.getCopiesCount());
-        bookCopyService.addCopiesForNewBook(dto.getCopiesCount(), savedBook );
+        bookCopyService.addCopiesForNewBook(dto.getCopiesCount(), savedBook);
         logger.info("Книга успешно создана. ID: {}", savedBook.getId());
         return bookMapper.toResponseDTO(savedBook);
     }
@@ -70,6 +71,7 @@ public class BookService {
 
         return bookMapper.toResponseDTO(updatedBook);
     }
+
     @Transactional
     public void deleteBook(RequestIdDTO dto) {
         logger.info("Попытка удаления Книги {}", dto.getId());

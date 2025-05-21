@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-
-
 public class RentalUserHistoryResponseDTO {
 
     @Schema(description = "ID аренды", example = "1001")

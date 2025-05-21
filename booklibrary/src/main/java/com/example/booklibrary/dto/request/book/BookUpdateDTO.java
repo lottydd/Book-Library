@@ -14,15 +14,15 @@ import lombok.*;
 public class BookUpdateDTO {
 
 
-    @Schema(description = "Автор книги", example = "Лев Толстой")
+    @Schema(description = "Автор книги", example = "Лев Толстой", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Автор книги обязателен")
     private String author;
 
-    @Schema(description = "Название книги", example = "Война и мир")
+    @Schema(description = "Название книги", example = "Война и мир", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Название книги обязательно")
     private String bookTitle;
 
-    @Schema(description = "ISBN книги", example = "978-5-17-118366-5")
+    @Schema(description = "ISBN книги", example = "978-5-17-118366-5", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "ISBN обязателен")
     private String isbn;
 
@@ -31,7 +31,7 @@ public class BookUpdateDTO {
     @Max(value = 2025, message = "Год издания не может быть в будущем")
     private int publicationYear;
 
-    @Schema(description = "Описание книги", example = "Эпический роман о войне и человеческой судьбе.")
+    @Schema(description = "Описание книги", example = "Эпический роман о войне и человеческой судьбе.", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Описание книги обязательно")
     private String description;
 }
