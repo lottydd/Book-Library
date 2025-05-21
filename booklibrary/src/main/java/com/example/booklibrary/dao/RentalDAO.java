@@ -23,7 +23,7 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
     }
 
     public Optional<Rental> findActiveRentalByCopyId(int copyId) {
-        logger.debug("Поиск активной аренды для копии книги с ID: {}", copyId);
+        logger.info("Поиск активной аренды для копии книги с ID: {}", copyId);
 
         try {
             Optional<Rental> result = entityManager.createQuery(
@@ -51,7 +51,7 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
     }
 
     public List<Rental> findOverdueRentals(LocalDateTime currentDate) {
-        logger.debug("Поиск просроченных аренд");
+        logger.info("Поиск просроченных аренд");
         List<Rental> result = entityManager.createQuery(
                         "SELECT r FROM Rental r WHERE " +
                                 "r.dueDate < :currentDate AND " +
@@ -64,7 +64,7 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
     }
 
     public List<Rental> findByUserId(int userId) {
-        logger.debug("Поиск аренд пользователя");
+        logger.info("Поиск аренд пользователя");
         List<Rental> result = entityManager.createQuery(
                         "SELECT r FROM Rental r WHERE " +
                                 "r.user.id = :userId", Rental.class)
@@ -75,7 +75,7 @@ public class RentalDAO extends BaseDAO<Rental, Integer> {
     }
 
     public List<Rental> findByCopyId(int copyId) {
-        logger.debug("Поиск аренд для копии");
+        logger.info("Поиск аренд для копии");
         List<Rental> result =  entityManager.createQuery(
                         "SELECT r FROM Rental r WHERE " +
                                 "r.copy.copyId = :copyId", Rental.class)

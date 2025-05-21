@@ -18,7 +18,7 @@ public class CatalogDAO extends BaseDAO<Catalog, Integer> {
 
 
     public List<Catalog> findRootCatalogs() {
-        logger.debug("Поиск корневых каталогов");
+        logger.info("Поиск корневых каталогов");
         return entityManager.createQuery(
                 "SELECT c FROM Catalog c WHERE c.parent IS NULL",
                 Catalog.class
@@ -26,7 +26,7 @@ public class CatalogDAO extends BaseDAO<Catalog, Integer> {
     }
 
     public List<Catalog> findByParentId(Integer parentId) {
-        logger.debug("Поиск каталогов по parentId: {}", parentId);
+        logger.info("Поиск каталогов по parentId: {}", parentId);
         List<Catalog> catalogs = entityManager.createQuery(
                         "SELECT c FROM Catalog c WHERE c.parent.id = :parentId",
                         Catalog.class
