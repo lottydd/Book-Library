@@ -20,7 +20,7 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
 
 
     public void deleteByBookId(int bookId) {
-        logger.debug("Удаление всех копий книги с ID {}", bookId);
+        logger.info("Удаление всех копий книги с ID {}", bookId);
         int deletedCount = entityManager.createQuery("DELETE FROM BookCopy c WHERE c.book.id = :bookId")
                 .setParameter("bookId", bookId)
                 .executeUpdate();
@@ -28,7 +28,7 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
     }
 
     public boolean existsByBookIdAndStatus(int bookId, CopyStatus status) {
-        logger.debug("Поиск книги с {} и статусом {}", bookId, status);
+        logger.info("Поиск книги с {} и статусом {}", bookId, status);
        boolean exists= entityManager.createQuery(
                         "SELECT COUNT(c) > 0 FROM BookCopy c " +
                                 "WHERE c.book.id = :bookId AND c.status = :status", Boolean.class)
@@ -44,7 +44,7 @@ public class BookCopyDAO extends BaseDAO<BookCopy, Integer> {
     }
 
     public List<BookCopy> findRentedCopiesByBookId(int bookId) {
-        logger.debug("Поиск арендованных копий книги ID {}", bookId);
+        logger.info("Поиск арендованных копий книги ID {}", bookId);
 
         List<BookCopy> result = entityManager.createQuery(
                         "SELECT c FROM BookCopy c WHERE c.book.id = :bookId AND c.status = :status", BookCopy.class)

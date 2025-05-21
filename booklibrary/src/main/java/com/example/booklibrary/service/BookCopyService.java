@@ -39,10 +39,10 @@ public class BookCopyService {
 
     @Transactional
     public void addCopies(BookAddCopyDTO dto) {
-        logger.debug("Попытка добавления {} копий для книги {}", dto.getCount(), dto.getBookId());
+        logger.info("Попытка добавления {} копий для книги {}", dto.getCount(), dto.getBookId());
         Book book = bookDAO.findById(dto.getBookId())
                 .orElseThrow(() -> new EntityNotFoundException("Книга не найдена"));
-        logger.debug("Книга найдена: ID: {}, Название: '{}'",
+        logger.info("Книга найдена: ID: {}, Название: '{}'",
                 book.getId(), book.getBookTitle());
         List<BookCopy> copies = new ArrayList<>();
         for (int i = 0; i < dto.getCount(); i++) {
@@ -51,7 +51,7 @@ public class BookCopyService {
                     .status(CopyStatus.AVAILABLE)
                     .build());
         }
-        logger.debug("Создано {} новых копий. Статус: {}",
+        logger.info("Создано {} новых копий. Статус: {}",
                 copies.size(), CopyStatus.AVAILABLE);
 
         bookCopyDAO.saveAll(copies);
@@ -62,7 +62,7 @@ public class BookCopyService {
 
     @Transactional
     public void addCopiesForNewBook(int bookCount, Book newBook) {
-        logger.debug("Попытка добавления  {} копий для книги  {}", bookCount, newBook.getBookTitle());
+        logger.info("Попытка добавления  {} копий для книги  {}", bookCount, newBook.getBookTitle());
 
         List<BookCopy> copies = new ArrayList<>();
         for (int i = 0; i < bookCount; i++) {
@@ -71,7 +71,7 @@ public class BookCopyService {
                     .status(CopyStatus.AVAILABLE)
                     .build());
         }
-        logger.debug("Создано  {} новых копий. Статус: {}",
+        logger.info("Создано  {} новых копий. Статус: {}",
                 copies.size(), CopyStatus.AVAILABLE);
 
         bookCopyDAO.saveAll(copies);
@@ -82,11 +82,11 @@ public class BookCopyService {
 
     @Transactional
     public BookCopyDTO updateCopyStatus(BookCopyUpdateDTO dto) {
-        logger.debug("Попытка обновления статуса {} копии  {}", dto.getStatus(), dto.getCopyId());
+        logger.info("Попытка обновления статуса {} копии  {}", dto.getStatus(), dto.getCopyId());
         BookCopy copy = getCopyById(dto.getCopyId());
         validateStatusChange(copy, dto.getStatus());
         copy.setStatus(dto.getStatus());
-        logger.debug("Cтатус копии обновлен: {}", dto.getStatus());
+        logger.info("Cтатус копии обновлен: {}", dto.getStatus());
         return bookCopyMapper.toDto(bookCopyDAO.save(copy));
     }
 
@@ -98,10 +98,10 @@ public class BookCopyService {
 
     @Transactional
     public void deleteBookCopies(RequestIdDTO dto) {
-        logger.debug("Проверка возможности удаления копий книги с ID {}", dto.getId());
+        logger.info("Проверка возможности удаления копий книги с ID {}", dto.getId());
         List<BookCopy> nonDeletableCopies = bookCopyDAO.findNonDeletableCopiesByBookId(dto.getId());
         if (!nonDeletableCopies.isEmpty()) {
-            logger.warn("Удаление невозможно — найдены арендованные или недоступные копии книги. BookID: {}", dto.getId());
+            logger.error("Удаление невозможно — найдены арендованные или недоступные копии книги. BookID: {}", dto.getId());
             throw new IllegalStateException("Невозможно удалить — некоторые копии книги сейчас арендованы или недоступны");
         }
         bookCopyDAO.deleteByBookId(dto.getId());
@@ -109,9 +109,9 @@ public class BookCopyService {
 
     @Transactional(readOnly = true)
     public List<BookCopyDTO> getRentedCopies(RequestIdDTO dto) {
-        logger.debug("Попытка получения арендованных копий книги {}", dto.getId());
+        logger.info("Попытка получения арендованных копий книги {}", dto.getId());
         List<BookCopy> rentedCopies = bookCopyDAO.findRentedCopiesByBookId(dto.getId());
-        logger.debug("Найдено {} арендованных копий книги ", rentedCopies.size());
+        logger.info("Найдено {} арендованных копий книги ", rentedCopies.size());
         return rentedCopies.stream()
                 .map(bookCopyMapper::toDto)
                 .toList();
@@ -119,7 +119,7 @@ public class BookCopyService {
 
     @Transactional
     private BookCopy getCopyById(int copyId) {
-        logger.debug("Поиск копии книги по ID: {}", copyId);
+        logger.info("Поиск копии книги по ID: {}", copyId);
         return bookCopyDAO.findById(copyId)
                 .orElseThrow(() -> {
                     logger.error("Копия книги с ID {} не найдена", copyId);

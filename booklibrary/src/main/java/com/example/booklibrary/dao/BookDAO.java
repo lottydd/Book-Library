@@ -20,7 +20,7 @@ public class BookDAO extends BaseDAO<Book, Integer> {
     }
 
     public Optional<Book> findByIdWithCopies(int bookId) {
-        logger.debug("Поиск книги вместе с ее копиями по ID {}", bookId);
+        logger.info("Поиск книги вместе с ее копиями по ID {}", bookId);
         try {
             Book book = entityManager.createQuery(
                             "SELECT b FROM Book b LEFT JOIN FETCH b.copies WHERE b.id = :id",
@@ -42,7 +42,7 @@ public class BookDAO extends BaseDAO<Book, Integer> {
 
 
     public Optional<Book> findByIsbn(String isbn) {
-        logger.debug("Поиск книги по ее isbn {}", isbn);
+        logger.info("Поиск книги по ее isbn {}", isbn);
         try {
             Book book = entityManager.createQuery(
                             "SELECT b FROM Book b WHERE b.isbn = :isbn", Book.class)
@@ -57,7 +57,7 @@ public class BookDAO extends BaseDAO<Book, Integer> {
     }
 
     public boolean existsById(int bookId) {
-        logger.debug("Проверка существования Книги по ID {}", bookId);
+        logger.info("Проверка существования Книги по ID {}", bookId);
 
         Boolean exists = entityManager.createQuery(
                         "SELECT COUNT(b) > 0 FROM Book b WHERE b.id = :bookId", Boolean.class)
@@ -66,7 +66,7 @@ public class BookDAO extends BaseDAO<Book, Integer> {
         if (exists) {
             logger.info("Книга с  ID {}  существует", bookId);
         } else {
-            logger.debug("Книга с  ID {} не  существует", bookId);
+            logger.info("Книга с  ID {} не  существует", bookId);
 
         }
         return exists;

@@ -3,6 +3,7 @@ package com.example.booklibrary.controller;
 import com.example.booklibrary.dto.request.security.AuthRequestDTO;
 import com.example.booklibrary.dto.response.security.AuthResponseDTO;
 import com.example.booklibrary.security.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -19,6 +20,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Auth ", description = "авторизация пользователей")
+
 public class AuthController {
 
     private final AuthenticationManager authManager;

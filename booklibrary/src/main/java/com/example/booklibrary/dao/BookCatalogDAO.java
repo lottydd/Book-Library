@@ -21,7 +21,7 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
 
 
     public boolean existsByBookAndCatalog(Book book, Catalog catalog) {
-        logger.debug("Проверка существования {} в Каталоге {}"
+        logger.info("Проверка существования {} в Каталоге {}"
                 , book.getBookTitle(), catalog.getName());
         Long count = entityManager.createQuery(
                         "SELECT COUNT(bc) FROM BookCatalog bc " +
@@ -42,7 +42,7 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
 
 
     public boolean existsByCatalogIdAndBookId(int catalogId, int bookId) {
-        logger.debug("Проверка существования книги в каталоге");
+        logger.info("Проверка существования книги в каталоге");
         String ql = "SELECT count(bc) FROM BookCatalog bc WHERE bc.catalog.id = :catalogId AND bc.book.id = :bookId";
         Long count = entityManager.createQuery(ql, Long.class)
                 .setParameter("catalogId", catalogId)
@@ -52,7 +52,7 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
     }
 
     public void deleteByCatalogIdAndBookId(int catalogId, int bookId) {
-        logger.debug("Удаление записей связей книга-каталог");
+        logger.info("Удаление записей связей книга-каталог");
 
         String ql = "DELETE FROM BookCatalog bc WHERE bc.catalog.id = :catalogId AND bc.book.id = :bookId";
         int deleted = entityManager.createQuery(ql)
@@ -64,7 +64,7 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
 
 
     public int deleteByBookId(int bookId) {
-        logger.debug("Массовое удаление связей книги ID {}", bookId);
+        logger.info("Массовое удаление связей книги ID {}", bookId);
         int deletedCount = entityManager.createQuery(
                         "DELETE FROM BookCatalog bc WHERE bc.book.id = :bookId")
                 .setParameter("bookId", bookId)
@@ -75,7 +75,7 @@ public class BookCatalogDAO extends BaseDAO<BookCatalog, Integer> {
     }
 
     public List<BookCatalog> findByCatalogId(int catalogId) {
-        logger.debug("Поиск книг по ID каталога {}", catalogId);
+        logger.info("Поиск книг по ID каталога {}", catalogId);
         return entityManager.createQuery(
                         "SELECT bc FROM BookCatalog bc " +
                                 "JOIN FETCH bc.book " +

@@ -8,6 +8,9 @@ import com.example.booklibrary.dto.response.catalog.CatalogBooksResponseDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogCreateResponseDTO;
 import com.example.booklibrary.dto.response.catalog.CatalogTreeDTO;
 import com.example.booklibrary.service.CatalogService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Catalog", description = "Управление каталогами и книгами в них")
 @RestController
 @RequestMapping("/api/catalogs")
 public class CatalogController {
@@ -26,6 +30,8 @@ public class CatalogController {
         this.catalogService = catalogService;
     }
 
+
+    @Operation(summary = "Создание нового каталога", description = "Создаёт новый каталог. Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CatalogCreateResponseDTO> createCatalog
@@ -34,10 +40,13 @@ public class CatalogController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
+    @Operation(summary = "Добавление книги в каталог", description = "Добавляет книгу в указанный каталог. Только для администратора")
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{targetCatalogId}/books")
     public ResponseEntity<CatalogAddBookResponseDTO> addBookToCatalog(
-            @PathVariable Integer targetCatalogId,
+            @Parameter(description = "ID каталога") @PathVariable Integer targetCatalogId,
             @RequestBody @Valid CatalogAddBookDTO dto) {
         if (!targetCatalogId.equals(dto.getCatalogId())) {
             throw new IllegalArgumentException("ID Каталога в  пути и в теле запроса" +
@@ -48,21 +57,26 @@ public class CatalogController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Удаление каталога", description = "Удаляет каталог по ID. Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCatalog(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteCatalog(
+            @Parameter(description = "ID удаляемого каталога") @PathVariable Integer id) {
         catalogService.deleteCatalog(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Удаление книги из каталога", description = "Удаляет книгу из указанного каталога. Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{catalogId}/books/{bookId}")
-    public ResponseEntity<Void> removeBookFromCatalog(@PathVariable Integer catalogId,
-                                                      @PathVariable Integer bookId) {
+    public ResponseEntity<Void> removeBookFromCatalog(
+            @Parameter(description = "ID каталога") @PathVariable Integer catalogId,
+            @Parameter(description = "ID книги") @PathVariable Integer bookId) {
         catalogService.removeBookFromCatalog(catalogId, bookId);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Получение дерева каталогов", description = "Возвращает иерархическое дерево всех каталогов. Доступно администратора и пользователя")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/tree")
     public ResponseEntity<List<CatalogTreeDTO>> getCatalogTree() {
@@ -70,9 +84,11 @@ public class CatalogController {
         return ResponseEntity.ok(tree);
     }
 
+    @Operation(summary = "Получение книг из каталога", description = "Возвращает список книг в каталоге. Доступно администратора и пользователя")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{catalogId}/books")
-    public ResponseEntity<List<CatalogBooksResponseDTO>> getBooksFromCatalog(@PathVariable Integer catalogId){
+    public ResponseEntity<List<CatalogBooksResponseDTO>> getBooksFromCatalog(
+            @Parameter(description = "ID каталога") @PathVariable Integer catalogId){
         List<CatalogBooksResponseDTO> catalogBooks = catalogService.getCatalogBooks(catalogId);
         return ResponseEntity.ok(catalogBooks);
     }

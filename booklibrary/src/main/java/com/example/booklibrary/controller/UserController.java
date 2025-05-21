@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
-@Tag(name = "User Management", description = "API для управления пользователями")
+@Tag(name = "User", description ="управление пользователями")
 public class UserController {
 
     private final UserService userService;
@@ -29,10 +29,7 @@ public class UserController {
     }
 
     @Operation(summary = "Регистрация нового пользователя", description = "Создает нового пользователя в системе")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Пользователь успешно зарегистрирован"),
-            @ApiResponse(responseCode = "400", description = "Некорректные входные данные")
-    })
+
     @PostMapping("/register")
     public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserCreateDTO userCreateDTO) {
         UserDTO registeredUser = userService.registerUser(userCreateDTO);
@@ -40,11 +37,7 @@ public class UserController {
     }
 
     @Operation(summary = "Назначение роли пользователю", description = "Добавляет указанную роль пользователю (только для ADMIN)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Роль успешно назначена"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
-            @ApiResponse(responseCode = "404", description = "Пользователь или роль не найдены")
-    })
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/assign-role/{roleName}")
     public ResponseEntity<UserDTO> assignRoleToUser(
@@ -55,11 +48,7 @@ public class UserController {
     }
 
     @Operation(summary = "Удаление роли у пользователя", description = "Удаляет указанную роль у пользователя (только для ADMIN)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Роль успешно удалена"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
-            @ApiResponse(responseCode = "404", description = "Пользователь или роль не найдены")
-    })
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/delete-role/{roleName}")
     public ResponseEntity<UserDTO> deleteRoleFromUser(
@@ -71,12 +60,7 @@ public class UserController {
 
 
     @Operation(summary = "Обновление данных пользователя", description = "Обновляет основную информацию о пользователе (доступно USER и ADMIN)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Данные успешно обновлены"),
-            @ApiResponse(responseCode = "400", description = "Некорректные входные данные"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
-            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-    })
+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/update/{userId}")
     public ResponseEntity<UserDTO> updateUser(
@@ -88,12 +72,7 @@ public class UserController {
 
 
     @Operation(summary = "Смена пароля", description = "Изменяет пароль пользователя (доступно USER и ADMIN)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Пароль успешно изменен"),
-            @ApiResponse(responseCode = "400", description = "Некорректные входные данные"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
-            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-    })
+
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{userId}/change-password")
     public ResponseEntity<Void> changePassword(
@@ -104,11 +83,7 @@ public class UserController {
     }
 
     @Operation(summary = "Удаление пользователя", description = "Удаляет пользователя из системы (только для ADMIN)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Пользователь успешно удален"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
-            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-    })
+
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<Void> deleteUser(  @Parameter(description = "ID пользователя", example = "1") @PathVariable int userId) {
@@ -116,11 +91,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     @Operation(summary = "Получение информации о пользователе", description = "Возвращает полную информацию о пользователе (только для ADMIN)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Информация о пользователе"),
-            @ApiResponse(responseCode = "403", description = "Доступ запрещен"),
-            @ApiResponse(responseCode = "404", description = "Пользователь не найден")
-    })
+
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("user-info/{userId}")
     public ResponseEntity<UserDTO> getUserInfo(  @Parameter(description = "ID пользователя", example = "1") @PathVariable int userId) {

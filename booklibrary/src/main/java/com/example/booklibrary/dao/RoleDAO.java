@@ -19,7 +19,7 @@ public class RoleDAO extends BaseDAO<Role, Integer> {
     }
 
     public Optional<Role> findRoleName(String roleName) {
-        logger.debug("Поиск роли по имени {}", roleName);
+        logger.info("Поиск роли по имени {}", roleName);
         try {
             Role role = entityManager.createQuery(
                             "SELECT r FROM Role r WHERE r.roleName = :roleName",

@@ -20,7 +20,7 @@ public class UserDAO extends BaseDAO<User, Integer> {
     }
 
     public Optional<User> findByEmail(String email) {
-        logger.debug("Поиск Пользователя по email {}", email);
+        logger.info("Поиск Пользователя по email {}", email);
         try {
             User user = entityManager.createQuery(
                             "SELECT u FROM User u WHERE u.email = :email", User.class)
@@ -39,7 +39,7 @@ public class UserDAO extends BaseDAO<User, Integer> {
     }
 
     public Optional<User> findByUsername(String username) {
-        logger.debug("Поиск Пользователя по username {}", username);
+        logger.info("Поиск Пользователя по username {}", username);
         try {
             User user = entityManager.createQuery(
                             "SELECT u FROM User u WHERE u.username = :username", User.class)
@@ -57,7 +57,7 @@ public class UserDAO extends BaseDAO<User, Integer> {
     }
 
     public boolean existsByEmailOrUsername(String email, String username) {
-        logger.debug("Проверка существования пользователя с username {} и email{}", username, email);
+        logger.info("Проверка существования пользователя с username {} и email{}", username, email);
         Long count = entityManager.createQuery(
                         "SELECT COUNT(u) FROM User u WHERE u.email = :email OR u.username = :username",
                         Long.class)

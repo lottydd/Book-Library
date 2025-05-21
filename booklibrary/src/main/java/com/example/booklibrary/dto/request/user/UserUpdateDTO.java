@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,14 +18,14 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "DTO для обновления данных пользователя")
+@Schema(description = "Запрос  для обновления данных пользователя")
 public class UserUpdateDTO {
-
-    @Schema(description = "Имя пользователя", example = "updated_john", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 5, max = 16)
+    @Schema(description = "Имя пользователя", example = "john", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Username не может быть пустым")
     private String username;
 
-    @Schema(description = "Email пользователя", example = "updated_john@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Email пользователя", example = "john@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Email  не может быть пустым")
     @Email
     private String email;
