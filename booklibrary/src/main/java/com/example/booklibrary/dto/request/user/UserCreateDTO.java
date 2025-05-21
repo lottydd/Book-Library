@@ -23,7 +23,7 @@ public class UserCreateDTO {
     @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Некорректный формат почты ")
     private String email;
-
+    @Size(min = 8, max = 32)
     @Schema(description = "Пароль пользователя", example = "securePassword123", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Пароль не может быть пустым")
     private String password;
