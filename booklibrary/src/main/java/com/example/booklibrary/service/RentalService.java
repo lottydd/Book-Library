@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -152,6 +153,15 @@ public class RentalService {
         return rentalMapper.toCopyStoryDtoList(rentals);
     }
 
+    @Transactional(readOnly = true)
+    public List<RentalDTO> getAllLateRentals(){
+        List<Rental> rentals = rentalDAO.findAll();
+        return rentals.stream()
+                .filter(rental -> rental.getStatus() == RentalStatus.LATE)
+                .map(rentalMapper::toDto)
+                .toList();
+    }
+
     private void validateCopyAvailableForRent(BookCopy copy) {
         logger.info("Проверка доступности копии для аренды. CopyID: {}", copy.getCopyId());
         if (copy.getStatus() != CopyStatus.AVAILABLE) {
@@ -162,6 +172,9 @@ public class RentalService {
             );
         }
     }
+
+
+
 
     private void validateRentTime(LocalDateTime dueTime) {
         LocalDateTime now = LocalDateTime.now();

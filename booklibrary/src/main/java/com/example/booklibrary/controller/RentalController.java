@@ -97,4 +97,12 @@ public class RentalController {
         return ResponseEntity.ok(history);
     }
 
+    @Operation(summary = "Получение всех аренд со статусом LATE", description = "Возвращает список аренд со статусом LATE. Только для администратора")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/late")
+    public ResponseEntity<List<RentalDTO>> getAllLateRentals() {
+        List<RentalDTO> lateRentals = rentalService.getAllLateRentals();
+        return ResponseEntity.ok(lateRentals);
+    }
+
 }
