@@ -12,10 +12,10 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "DTO для изменения пароля пользователя")
+@Schema(description = "Запрос  для изменения пароля пользователя")
 public class UserPasswordChangeDTO {
 
-    @Schema(description = "Новый пароль", example = "newSecurePassword456", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Новый пароль", example = "newPassword456", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     private String newPassword;
 }

@@ -9,11 +9,11 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "DTO для создания нового пользователя")
+@Schema(description = "Запрос для создания нового пользователя")
 
 public class UserCreateDTO {
 
-    @Schema(description = "Имя пользователя", example = "john_doe", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Имя пользователя", example = "johnCoolGuy", requiredMode = Schema.RequiredMode.REQUIRED)
     @Size(min = 5, max = 16)
     @NotBlank(message = "Username не может быть пустым")
     private String username;

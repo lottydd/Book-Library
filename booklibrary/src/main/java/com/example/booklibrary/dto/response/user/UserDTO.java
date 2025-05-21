@@ -16,12 +16,12 @@ public class UserDTO {
     @Schema(description = "ID пользователя", example = "1")
     private Integer id;
 
-    @Schema(description = "Имя пользователя", example = "john_doe")
+    @Schema(description = "Имя пользователя", example = "john")
     private String username;
 
     @Schema(description = "Email пользователя", example = "john@example.com")
     private String email;
 
-    @Schema(description = "Список ролей пользователя", example = "[\"USER\", \"ADMIN\"]")
+    @Schema(description = "Список ролей пользователя", example = "[\"ROLE_USER\", \"ROLE_ADMIN\"]")
     private List<String> roles;
 }

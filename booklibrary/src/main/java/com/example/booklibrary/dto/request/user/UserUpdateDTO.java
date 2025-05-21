@@ -17,14 +17,14 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "DTO для обновления данных пользователя")
+@Schema(description = "Запрос  для обновления данных пользователя")
 public class UserUpdateDTO {
 
-    @Schema(description = "Имя пользователя", example = "updated_john", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Имя пользователя", example = "john", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Username не может быть пустым")
     private String username;
 
-    @Schema(description = "Email пользователя", example = "updated_john@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Email пользователя", example = "john@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "Email  не может быть пустым")
     @Email
     private String email;

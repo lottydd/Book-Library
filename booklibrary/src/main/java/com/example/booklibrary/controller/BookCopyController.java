@@ -5,6 +5,8 @@ import com.example.booklibrary.dto.request.bookcopy.BookAddCopyDTO;
 import com.example.booklibrary.dto.request.bookcopy.BookCopyUpdateDTO;
 import com.example.booklibrary.dto.response.bookcopy.BookCopyDTO;
 import com.example.booklibrary.service.BookCopyService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Book Copies", description = "Управление копиями книг")
 @RestController
 @RequestMapping("/api/book-copies")
 public class BookCopyController {
@@ -23,6 +26,7 @@ public class BookCopyController {
         this.bookCopyService = bookCopyService;
     }
 
+    @Operation(summary = "Добавить копии книги", description = "Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
 
@@ -31,13 +35,14 @@ public class BookCopyController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Удалить все копии книги по ID книги", description = "Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/book/{bookId}")
     public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));
         return ResponseEntity.noContent().build();
     }
-
+    @Operation(summary = "Обновить статус копии книги", description = "Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/status")
     public ResponseEntity<BookCopyDTO> updateCopyStatus(
@@ -46,6 +51,7 @@ public class BookCopyController {
         return ResponseEntity.ok(updatedCopy);
     }
 
+    @Operation(summary = "Получить информацию об арендованных копиях книги по ID книги", description = "Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/has-rented/{bookId}")
     public ResponseEntity<List<BookCopyDTO>> rentedCopiesInfo(@PathVariable Integer bookId) {
