@@ -38,7 +38,7 @@ public class BookCopyController {
     @Operation(summary = "Удалить все копии книги по ID книги", description = "Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/book/{bookId}")
-    public ResponseEntity<Void> deleteBookCopies(@PathVariable Integer bookId) {
+    public ResponseEntity<Void> deleteBookCopies(@PathVariable("bookId") Integer bookId) {
         bookCopyService.deleteBookCopies(new RequestIdDTO(bookId));
         return ResponseEntity.noContent().build();
     }
@@ -55,7 +55,7 @@ public class BookCopyController {
     @Operation(summary = "Получить информацию об арендованных копиях книги по ID книги", description = "Только для администратора")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/has-rented/{bookId}")
-    public ResponseEntity<List<BookCopyDTO>> rentedCopiesInfo(@PathVariable Integer bookId) {
+    public ResponseEntity<List<BookCopyDTO>> rentedCopiesInfo(@PathVariable("bookId") Integer bookId) {
         List<BookCopyDTO> rentedCopies = bookCopyService.getRentedCopies(new RequestIdDTO(bookId));
         return ResponseEntity.ok(rentedCopies);
     }

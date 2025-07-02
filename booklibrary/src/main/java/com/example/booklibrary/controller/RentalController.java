@@ -51,7 +51,7 @@ public class RentalController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/return/{copyId}")
     public ResponseEntity<RentalDTO> returnBookCopy
-            (@Parameter(description = "ID копии книги", example = "10") @PathVariable Integer copyId,
+            (@Parameter(description = "ID копии книги", example = "10") @PathVariable("copyId") Integer copyId,
              Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         int userId = userDetails.getId();
@@ -82,7 +82,7 @@ public class RentalController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/user-history/{userId}")
     public ResponseEntity<List<RentalUserHistoryResponseDTO>> getUserRentalHistory(
-            @Parameter(description = "ID пользователя", example = "5") @PathVariable int userId) {
+            @Parameter(description = "ID пользователя", example = "5") @PathVariable("userId") int userId) {
         List<RentalUserHistoryResponseDTO> history = rentalService.getUserRentalHistory(userId);
         return ResponseEntity.ok(history);
     }
@@ -92,7 +92,7 @@ public class RentalController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/copy-history/{copyId}")
     public ResponseEntity<List<RentalCopyStoryResponseDTO>> getCopyRentalHistory(
-            @Parameter(description = "ID копии книги", example = "12") @PathVariable int copyId) {
+            @Parameter(description = "ID копии книги", example = "12") @PathVariable("copyId") int copyId) {
         List<RentalCopyStoryResponseDTO> history = rentalService.getCopyRentalHistory(copyId);
         return ResponseEntity.ok(history);
     }

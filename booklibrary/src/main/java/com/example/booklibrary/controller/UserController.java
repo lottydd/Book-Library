@@ -41,8 +41,8 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/assign-role/{roleName}")
     public ResponseEntity<UserDTO> assignRoleToUser(
-            @Parameter(description = "ID пользователя", example = "1") @PathVariable int userId,
-            @Parameter(description = "Название роли", example = "ADMIN") @PathVariable String roleName) {
+            @Parameter(description = "ID пользователя", example = "1") @PathVariable("userId") int userId,
+            @Parameter(description = "Название роли", example = "ADMIN") @PathVariable("roleName") String roleName) {
         UserDTO updatedUser = userService.assignRoleToUser(userId, roleName);
         return ResponseEntity.ok(updatedUser);
     }
@@ -52,8 +52,8 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/delete-role/{roleName}")
     public ResponseEntity<UserDTO> deleteRoleFromUser(
-            @Parameter(description = "ID пользователя", example = "1") @PathVariable int userId,
-            @Parameter(description = "Название роли", example = "ADMIN") @PathVariable String roleName) {
+            @Parameter(description = "ID пользователя", example = "1") @PathVariable("userId") int userId,
+            @Parameter(description = "Название роли", example = "ADMIN") @PathVariable("roleName") String roleName) {
         UserDTO updatedUser = userService.deleteRoleFromUser(userId, roleName);
         return ResponseEntity.ok(updatedUser);
     }
@@ -64,7 +64,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/update/{userId}")
     public ResponseEntity<UserDTO> updateUser(
-            @Parameter(description = "ID пользователя", example = "1") @PathVariable int userId,
+            @Parameter(description = "ID пользователя", example = "1") @PathVariable("userId") int userId,
             @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
         UserDTO updatedUser = userService.updateUser(userId, userUpdateDTO);
         return ResponseEntity.ok(updatedUser);
@@ -76,7 +76,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/{userId}/change-password")
     public ResponseEntity<Void> changePassword(
-            @Parameter(description = "ID пользователя", example = "1") @PathVariable int userId,
+            @Parameter(description = "ID пользователя", example = "1") @PathVariable("userId") int userId,
             @RequestBody @Valid UserPasswordChangeDTO passwordChangeDTO) {
         userService.changePassword(userId, passwordChangeDTO.getNewPassword());
         return ResponseEntity.noContent().build();
@@ -86,7 +86,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<Void> deleteUser(@Parameter(description = "ID пользователя", example = "1") @PathVariable int userId) {
+    public ResponseEntity<Void> deleteUser(@Parameter(description = "ID пользователя", example = "1") @PathVariable("userId") int userId) {
         userService.deleteUser(new RequestIdDTO(userId));
         return ResponseEntity.noContent().build();
     }
@@ -95,7 +95,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("user-info/{userId}")
-    public ResponseEntity<UserDTO> getUserInfo(@Parameter(description = "ID пользователя", example = "1") @PathVariable int userId) {
+    public ResponseEntity<UserDTO> getUserInfo(@Parameter(description = "ID пользователя", example = "1") @PathVariable("userId") int userId) {
         UserDTO user = userService.findUserById(new RequestIdDTO(userId));
         return ResponseEntity.ok(user);
     }

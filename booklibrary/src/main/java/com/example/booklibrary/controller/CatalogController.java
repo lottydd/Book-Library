@@ -46,7 +46,7 @@ public class CatalogController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{targetCatalogId}/books")
     public ResponseEntity<CatalogAddBookResponseDTO> addBookToCatalog(
-            @Parameter(description = "ID каталога") @PathVariable Integer targetCatalogId,
+            @Parameter(description = "ID каталога") @PathVariable("targetCatalogId") Integer targetCatalogId,
             @RequestBody @Valid CatalogAddBookDTO dto) {
         if (!targetCatalogId.equals(dto.getCatalogId())) {
             throw new IllegalArgumentException("ID Каталога в  пути и в теле запроса" +
@@ -61,7 +61,7 @@ public class CatalogController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCatalog(
-            @Parameter(description = "ID удаляемого каталога") @PathVariable Integer id) {
+            @Parameter(description = "ID удаляемого каталога") @PathVariable("id") Integer id) {
         catalogService.deleteCatalog(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
@@ -70,8 +70,8 @@ public class CatalogController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{catalogId}/books/{bookId}")
     public ResponseEntity<Void> removeBookFromCatalog(
-            @Parameter(description = "ID каталога") @PathVariable Integer catalogId,
-            @Parameter(description = "ID книги") @PathVariable Integer bookId) {
+            @Parameter(description = "ID каталога") @PathVariable("catalogId") Integer catalogId,
+            @Parameter(description = "ID книги") @PathVariable("bookId") Integer bookId) {
         catalogService.removeBookFromCatalog(catalogId, bookId);
         return ResponseEntity.noContent().build();
     }
@@ -88,7 +88,7 @@ public class CatalogController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{catalogId}/books")
     public ResponseEntity<List<CatalogBooksResponseDTO>> getBooksFromCatalog(
-            @Parameter(description = "ID каталога") @PathVariable Integer catalogId) {
+            @Parameter(description = "ID каталога") @PathVariable("catalogId") Integer catalogId) {
         List<CatalogBooksResponseDTO> catalogBooks = catalogService.getCatalogBooks(catalogId);
         return ResponseEntity.ok(catalogBooks);
     }

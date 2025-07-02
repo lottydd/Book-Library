@@ -46,7 +46,7 @@ public class BookController {
     @Operation(summary = "Удалить книгу", description = "Удаление по ID (только для администратора)")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBook(@PathVariable int id) {
+    public ResponseEntity<Void> deleteBook(@PathVariable("id") int id) {
         bookService.deleteBook(new RequestIdDTO(id));
         return ResponseEntity.noContent().build();
     }
@@ -54,7 +54,7 @@ public class BookController {
     @Operation(summary = "Получить информацию о книге", description = "Доступно всем авторизованным пользователям")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<BookDetailsDTO> getBookDetails(@PathVariable int id) {
+    public ResponseEntity<BookDetailsDTO> getBookDetails(@PathVariable("id") int id) {
         BookDetailsDTO response = bookService.getBookDetails(new RequestIdDTO(id));
         return ResponseEntity.ok(response);
     }

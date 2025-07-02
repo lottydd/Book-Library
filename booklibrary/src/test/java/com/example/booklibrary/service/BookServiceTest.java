@@ -53,7 +53,6 @@ class BookServiceTest {
         createDTO.setPublicationYear(2020);
         createDTO.setDescription("Description");
         createDTO.setCopiesCount(2);
-        createDTO.setCatalogIds(Collections.emptyList());
 
         updateDTO = new BookUpdateDTO();
         updateDTO.setAuthor("Author Updated");
