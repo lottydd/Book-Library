@@ -26,7 +26,7 @@ public class BookCopy {
     @EqualsAndHashCode.Exclude
     private Book book;
 
-    @Column(name = "status")
+    @Column(name = "copy_status")
     @Enumerated(EnumType.STRING)
     private CopyStatus status;
 
