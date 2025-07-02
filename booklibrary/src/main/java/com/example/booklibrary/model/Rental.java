@@ -39,7 +39,7 @@ public class Rental {
     private LocalDateTime returnDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "rental_status", nullable = false)
     private RentalStatus status;
 
 }
