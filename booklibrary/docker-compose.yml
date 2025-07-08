@@ -11,7 +11,6 @@ services:
       POSTGRES_INITDB_ARGS: --encoding=UTF-8
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ../database:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     healthcheck:
@@ -33,6 +32,9 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: admin
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: "classpath:db/migration"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
       SPRING_SQL_INIT_MODE: never
     ports:
       - "8080:8080"
